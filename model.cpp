@@ -121,7 +121,7 @@ Model::Vertex Model::calculateCenter() const {
     Vertex pmin = calculateMinVertex();
 
     Vertex center((pmax.x + pmin.x)/2, (pmax.y + pmin.y)/2, (pmax.z + pmin.z)/2);
-    return center + translationOffset;
+    return center;
 }
 
 Model::Vertex Model::calculateMinVertex() const {
@@ -183,7 +183,9 @@ void Model::setDisplayList(GLuint displayList) {
 }
 
 const Model::Vector& Model::translateBy(Model::Vector offset) {
-    translationOffset += offset;
+    Vector3d v(offset.x, offset.y, offset.z);
+    v = orientation * v;
+    translationOffset += Model::Vector(v.x(), v.y(), v.z());
     return translationOffset;
 }
 
