@@ -89,26 +89,20 @@ void Model::initFromObjFile(char const *fileName) {
     }
 }
 
-Model::Vertex::Vertex(double x, double y, double z) : x(x), y(y), z(z) {}
-
-//void Model::translateCenterTo(const Model::Vertex & p) {
-//    Vertex center = calculateCenter();
-//    Vector offset = p - center;
-//    translateBy(offset);
-//}
-
 void Model::normalize() {
-    Vertex pmax = calculateMaxVertex();
-    Vertex pmin = calculateMinVertex();
-    Vertex center = calculateCenter();
-    Vertex origin;
-    Vector offset = origin - center;
+    Vector3d pmax = calculateMaxVertex();
+    Vector3d pmin = calculateMinVertex();
+    Vector3d center = calculateCenter();
+    Vector3d origin;
+    Vector3d offset = origin - center;
 
-    Vector diagonal = pmax - pmin;
+    Vector3d diagonal = pmax - pmin;
 
-    double scale = max(max(diagonal.x, diagonal.y), diagonal.z);
+    double scale = max(max(diagonal.x(), diagonal.y()), diagonal.z());
     for (int i = 0; i < vertices.size(); ++i) {
-        vertices[i] += offset;
+        vertices[i].x += offset.x();
+        vertices[i].y += offset.y();
+        vertices[i].z += offset.z();
 
         vertices[i].x /= scale;
         vertices[i].y /= scale;
@@ -116,48 +110,38 @@ void Model::normalize() {
     }
 }
 
-Model::Vertex Model::calculateCenter() const {
-    Vertex pmax = calculateMaxVertex();
-    Vertex pmin = calculateMinVertex();
+Vector3d Model::calculateCenter() const {
+    Vector3d pmax = calculateMaxVertex();
+    Vector3d pmin = calculateMinVertex();
 
-    Vertex center((pmax.x + pmin.x)/2, (pmax.y + pmin.y)/2, (pmax.z + pmin.z)/2);
+    Vector3d center((pmax.x() + pmin.x())/2, (pmax.y() + pmin.y())/2, (pmax.z() + pmin.z())/2);
     return center;
 }
 
-Model::Vertex Model::calculateMinVertex() const {
-    Vertex pmin(vertices[0].x,
+Vector3d Model::calculateMinVertex() const {
+    Vector3d pmin(vertices[0].x,
             vertices[0].y,
             vertices[0].z);
 
     for (int i = 0; i < vertices.size(); ++i) {
-        pmin.x = min(pmin.x, vertices[i].x);
-        pmin.y = min(pmin.y, vertices[i].y);
-        pmin.z = min(pmin.z, vertices[i].z);
+        pmin.x() = min(pmin.x(), vertices[i].x);
+        pmin.y() = min(pmin.y(), vertices[i].y);
+        pmin.z() = min(pmin.z(), vertices[i].z);
     }
     return pmin;
 }
 
-Model::Vertex Model::calculateMaxVertex() const {
-    Vertex pmax(vertices[0].x,
+Vector3d Model::calculateMaxVertex() const {
+    Vector3d pmax(vertices[0].x,
             vertices[0].y,
             vertices[0].z);
 
     for (int i = 0; i < vertices.size(); ++i) {
-        pmax.x = max(pmax.x, vertices[i].x);
-        pmax.y = max(pmax.y, vertices[i].y);
-        pmax.z = max(pmax.z, vertices[i].z);
+        pmax.x() = max(pmax.x(), vertices[i].x);
+        pmax.y() = max(pmax.y(), vertices[i].y);
+        pmax.z() = max(pmax.z(), vertices[i].z);
     }
     return pmax;
-}
-
-Model::Vector::Vector(double x, double y, double z) : x(x), y(y), z(z) {}
-
-Model::Vector operator-(Model::Vertex lhs, Model::Vertex const &rhs) {
-    return Model::Vector(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
-}
-
-Model::Vertex operator+(Model::Vertex lhs, const Model::Vector & rhs) {
-    return Model::Vertex(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
 }
 
 
@@ -182,28 +166,15 @@ void Model::setDisplayList(GLuint displayList) {
     this->displayList = displayList;
 }
 
-const Model::Vector& Model::translateBy(Model::Vector offset) {
-    Vector3d v(offset.x, offset.y, offset.z);
-    v = orientation * v;
-    translationOffset += Model::Vector(v.x(), v.y(), v.z());
+const Vector3d& Model::translateBy(Vector3d offset) {
+    offset = orientation * offset;
+    translationOffset += offset;
     return translationOffset;
 }
 
-void Model::Vector::operator+=(Model::Vector const &other) {
-    this->x += other.x;
-    this->y += other.y;
-    this->z += other.z;
-}
-
-void Model::Vertex::operator+=(const Model::Vector& offset) {
-    this->x += offset.x;
-    this->y += offset.y;
-    this->z += offset.z;
-}
-
-const Model::Vector& Model::translateCenterTo(Model::Vertex vertex) {
-    Vertex center = calculateCenter();
-    Model::Vector offset = vertex - center;
+const Vector3d& Model::translateCenterTo(Vector3d vertex) {
+    Vector3d center = calculateCenter();
+    Vector3d offset = vertex - center;
     translationOffset += offset;
     return translationOffset;
 }

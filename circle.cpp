@@ -65,10 +65,10 @@ void drawScene(void) {
 
     glColor3f(0.0, 0.0, 0.0);
 
-    Model::Vector offset = myModel->translationOffset;
-    glTranslatef((GLfloat) offset.x, (GLfloat) offset.y, (GLfloat) offset.z);
-    Model::Vertex center = myModel->calculateCenter();
-    cout << "Center is " << center.x << ' ' << center.y << ' ' << center.x << endl;
+    Vector3d offset = myModel->translationOffset;
+    glTranslatef((GLfloat) offset.x(), (GLfloat) offset.y(), (GLfloat) offset.z());
+    Vector3d center = myModel->calculateCenter();
+    cout << "Center is " << center.x() << ' ' << center.y() << ' ' << center.x() << endl;
 
     Quaterniond o = myModel->orientation;
     cout << "Quaternion: " << o.w() << "," << o.x() << "," << o.y() << "," << o.z() << endl;
@@ -205,7 +205,7 @@ void specialKeyInput(int key, int x, int y) {
 }
 
 void translateAndDraw(double x, double y, double z) {
-    Model::Vector offset(x,y,z);
+    Vector3d offset(x,y,z);
     myModel->translateBy(offset);
     drawScene();
 }
@@ -222,21 +222,9 @@ void printInteraction(void) {
 int main(int argc, char **argv) {
     myModel = new Model("man.obj");
 
-    Model::Vertex center = myModel->calculateCenter();
-    cout << "Center is " << center.x << ' ' << center.y << ' ' << center.z << endl;
-
-    Model::Vector offset = myModel->translationOffset;
-    cout << "Offset is " << offset.x << ' ' << offset.y << ' ' << offset.z << endl;
-
     // move the model to 0,0,-2
-    Model::Vector v(0, 0, -2);
+    Vector3d v(0, 0, -2);
     myModel->translateBy(v);
-
-    center = myModel->calculateCenter();
-    cout << "Center is " << center.x << ' ' << center.y << ' ' << center.z << endl;
-
-    offset = myModel->translationOffset;
-    cout << "Offset is " << offset.x << ' ' << offset.y << ' ' << offset.z << endl;
 
     printInteraction();
     glutInit(&argc, argv);

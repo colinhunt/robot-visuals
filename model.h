@@ -24,20 +24,8 @@ using namespace std;
 class Model {
 
 public:
-
-    struct Vector {
-        Vector(double x, double y, double z);
-
-        void operator+=(const Vector& other);
-
-        double x, y, z;
-    };
-
+    
     struct Vertex {
-        Vertex(double x = 0, double y = 0, double z = 0);
-
-        void operator+=(const Vector& offset);
-
         double x, y, z;
     };
 
@@ -45,19 +33,19 @@ public:
 
     void saveToFile() const;
 
-    Vertex calculateCenter() const;
+    Vector3d calculateCenter() const;
 
     const int* faceArray(int i);
 
-    Model::Vertex const* vertexArray();
+    Vertex const* vertexArray();
 
     void draw(GLenum mode);
 
     void setDisplayList(unsigned int displayList);
 
-    Vector const & translateBy(Model::Vector offset);
+    Vector3d const & translateBy(Vector3d offset);
 
-    Vector const & translateCenterTo(Vertex vertex);
+    Vector3d const & translateCenterTo(Vector3d vertex);
     
     void rotateX(double degrees);
     void rotateY(double degrees);
@@ -67,7 +55,7 @@ public:
     vector<Vertex> vertices;
     vector< vector<int> > faces;
     unsigned int displayList;
-    Vector translationOffset;
+    Vector3d translationOffset;
     Quaterniond orientation;
     
 private:
@@ -77,13 +65,10 @@ private:
     void normalize();
 
 
-    Vertex calculateMaxVertex() const;
+    Vector3d calculateMaxVertex() const;
 
-    Vertex calculateMinVertex() const;
+    Vector3d calculateMinVertex() const;
 
     void rotateByAngleAxis(double degrees, Vector3d axis);
 
 };
-
-Model::Vector operator-(Model::Vertex lhs, const Model::Vertex & rhs);
-Model::Vertex operator+(Model::Vertex lhs, const Model::Vector & rhs);
