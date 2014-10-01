@@ -17,7 +17,8 @@
 
 #include <string>
 #include <vector>
-
+#include <Eigen/Geometry>
+using namespace Eigen;
 using namespace std;
 
 class Model {
@@ -40,10 +41,6 @@ public:
         double x, y, z;
     };
 
-    struct Rotation {
-        GLfloat angle, x, y, z;
-    };
-
     Model(char const *fileName);
 
     void saveToFile() const;
@@ -61,18 +58,18 @@ public:
     Vector const & translateBy(Model::Vector offset);
 
     Vector const & translateCenterTo(Vertex vertex);
-
+    
+    void rotateX(double degrees);
+    void rotateY(double degrees);
+    void rotateZ(double degrees);
+    
     string name;
     vector<Vertex> vertices;
     vector< vector<int> > faces;
     unsigned int displayList;
     Vector translationOffset;
-    GLfloat alpha;
-    GLfloat beta;
-    GLfloat gamma;
-    vector<Rotation> rotations;
-
-
+    Quaterniond orientation;
+    
 private:
 
     void initFromObjFile(char const *fileName);
@@ -83,6 +80,8 @@ private:
     Vertex calculateMaxVertex() const;
 
     Vertex calculateMinVertex() const;
+
+    void rotateByAngleAxis(double degrees, Vector3d axis);
 
 };
 

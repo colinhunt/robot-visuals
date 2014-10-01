@@ -4,6 +4,9 @@
 #include <sstream>
 #include <string>
 #include <sys/errno.h>
+#include <Eigen/Geometry>
+#include <cmath>
+using namespace Eigen;
 
 #ifdef __APPLE__
 
@@ -23,7 +26,9 @@
 
 using namespace std;
 
-Model::Model(const char* fileName) : name("nameless"), translationOffset(0,0,0), alpha(0), beta(0), gamma(0) {
+const double PIOVER180 = M_PI / 180;
+
+Model::Model(const char* fileName) : name("nameless"), translationOffset(0,0,0), orientation(1, 0, 0, 0) {
     initFromObjFile(fileName);
     normalize();
 }
@@ -199,4 +204,24 @@ const Model::Vector& Model::translateCenterTo(Model::Vertex vertex) {
     Model::Vector offset = vertex - center;
     translationOffset += offset;
     return translationOffset;
+}
+
+void Model::rotateByAngleAxis(double degrees, Vector3d axis) {
+    double radians = degrees * PIOVER180;
+    Quaterniond r;
+    r = AngleAxisd(radians, axis);
+    cout << "rotation: " << r.w() << "," << r.x() << "," << r.y() << "," << r.z() << endl;
+    orientation *= r;
+    cout << "orientation right after rotation: " << orientation.w() << "," << orientation.x() << "," << orientation.y() << "," << orientation.z() << endl;
+}
+
+void Model::rotateX(double degrees) {
+    rotateByAngleAxis(degrees, Vector3d::UnitX());
+}
+
+void Model::rotateY(double degrees) {
+    rotateByAngleAxis(degrees, Vector3d::UnitY());    
+}
+void Model::rotateZ(double degrees) {
+    rotateByAngleAxis(degrees, Vector3d::UnitZ());
 }

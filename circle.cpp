@@ -14,7 +14,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
-
+#include <Eigen/Geometry>
 #include "model.h"
 
 #ifdef __APPLE__
@@ -34,6 +34,7 @@
 
 
 using namespace std;
+using namespace Eigen;
 
 // Globals.
 static bool ortho = false;
@@ -55,7 +56,6 @@ void translateAndDraw(double x, double y, double z);
 
 // Drawing routine.
 void drawScene(void) {
-    static float angle = 0.0;
     placeCamera();
 
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f); // Clear the background of our window to white
@@ -69,16 +69,18 @@ void drawScene(void) {
     glTranslatef((GLfloat) offset.x, (GLfloat) offset.y, (GLfloat) offset.z);
     Model::Vertex center = myModel->calculateCenter();
     cout << "Center is " << center.x << ' ' << center.y << ' ' << center.x << endl;
-//    glRotatef(myModel->beta, 0, 1, 0);
-//    glRotatef(myModel->gamma, 0, 0, 1);
-//    glRotatef(myModel->alpha, 1, 0, 0);
 
-    for (int i = (int) myModel->rotations.size() - 1; i >= 0; --i) {
-        cout << "rotating..." << i << endl;
-        Model::Rotation r = myModel->rotations[i];
-        glRotatef(r.angle, r.x, r.y, r.z);
-    }
+    Quaterniond o = myModel->orientation;
+    cout << "Quaternion: " << o.w() << "," << o.x() << "," << o.y() << "," << o.z() << endl;
+    double halfTheta = acos(min(max(o.w(),-1.0),1.0));
+    cout << "halfTheta: " << halfTheta << endl;
 
+    double angle = 2 * halfTheta * (180 / PI);
+    
+    cout << "Angle: " << angle << endl;
+    
+    glRotatef(angle, o.x(), o.y(), o.z());
+    
     cout << "Drawing started" << endl;
 
     glCallList(myModel->displayList);
@@ -151,52 +153,27 @@ void keyInput(unsigned char key, int x, int y) {
             translateAndDraw(0, 0, 0.1);
             break;
         case 'p':
-        {
-            cout << "user p rotation" << endl;
-            Model::Rotation r = {-10, 1, 0, 0};
-            myModel->rotations.push_back(r);
-        }
-//            myModel->alpha -= 10;
+            myModel->rotateX(-10);
             drawScene();
             break;
         case 'P':
-        {
-            Model::Rotation r = {10, 1, 0, 0};
-            myModel->rotations.push_back(r);
-        }
-//            myModel->alpha += 10;
+            myModel->rotateX(10);
             drawScene();
             break;
         case 'y':
-        {
-            Model::Rotation r = {-10, 0, 1, 0};
-            myModel->rotations.push_back(r);
-        }
-//            myModel->beta -= 10;
+            myModel->rotateY(-10);
             drawScene();
             break;
         case 'Y':
-        {
-            Model::Rotation r = {10, 0, 1, 0};
-            myModel->rotations.push_back(r);
-        }
-//            myModel->beta += 10;
+            myModel->rotateY(10);
             drawScene();
             break;
         case 'r':
-        {
-            Model::Rotation r = {-10, 0, 0, 1};
-            myModel->rotations.push_back(r);
-        }
-//            myModel->gamma -= 10;
+            myModel->rotateZ(-10);
             drawScene();
             break;
         case 'R':
-        {
-            Model::Rotation r = {10, 0, 0, 1};
-            myModel->rotations.push_back(r);
-        }
-//            myModel->gamma += 10;
+            myModel->rotateZ(10);
             drawScene();
             break;
         default:
@@ -243,7 +220,7 @@ void printInteraction(void) {
 
 // Main routine.
 int main(int argc, char **argv) {
-    myModel = new Model("/Users/colinhunt/ClionProjects/square/cylinder.obj");
+    myModel = new Model("man.obj");
 
     Model::Vertex center = myModel->calculateCenter();
     cout << "Center is " << center.x << ' ' << center.y << ' ' << center.z << endl;
