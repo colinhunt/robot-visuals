@@ -6,25 +6,13 @@
 #include <sys/errno.h>
 #include <Eigen/Geometry>
 #include <cmath>
-using namespace Eigen;
-
-#ifdef __APPLE__
-
-#  include <GL/glew.h>
-#  include <GL/freeglut.h>
-#  include <OpenGL/glext.h>
-
-#else
-#  include <GL/glew.h>
-#  include <GL/freeglut.h>
-#  include <GL/glext.h>
-#pragma comment(lib, "glew32.lib") 
-#endif
-
 
 #include "model.h"
 
+#include "openglincludes.h"
+
 using namespace std;
+using namespace Eigen;
 
 const double PIOVER180 = M_PI / 180;
 
@@ -197,4 +185,21 @@ void Model::rotateY(double degrees) {
 }
 void Model::rotateZ(double degrees) {
     rotateByAngleAxis(degrees, Vector3d::UnitZ());
+}
+
+void Model::applyGlTransforms() {
+    glTranslatef((GLfloat) translationOffset.x(), 
+                 (GLfloat) translationOffset.y(), 
+                 (GLfloat) translationOffset.z());
+    
+    Quaterniond o = orientation;
+    cout << "Quaternion: " << o.w() << "," << o.x() << "," << o.y() << "," << o.z() << endl;
+    double halfTheta = acos(min(max(o.w(),-1.0),1.0));
+    cout << "halfTheta: " << halfTheta << endl;
+    
+    double angle = 2 * halfTheta * (180 / M_PI);
+    
+    cout << "Angle: " << angle << endl;
+    
+    glRotatef(angle, o.x(), o.y(), o.z());    
 }

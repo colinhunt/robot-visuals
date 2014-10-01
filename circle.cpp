@@ -15,23 +15,9 @@
 #include <cmath>
 #include <iostream>
 #include <Eigen/Geometry>
+
 #include "model.h"
-
-#ifdef __APPLE__
-
-#  include <GL/glew.h>
-#  include <GL/freeglut.h>
-#  include <OpenGL/glext.h>
-
-#else
-#  include <GL/glew.h>
-#  include <GL/freeglut.h>
-#  include <GL/glext.h>
-#pragma comment(lib, "glew32.lib") 
-#endif
-
-#define PI 3.14159265358979324
-
+#include "openglincludes.h"
 
 using namespace std;
 using namespace Eigen;
@@ -65,21 +51,7 @@ void drawScene(void) {
 
     glColor3f(0.0, 0.0, 0.0);
 
-    Vector3d offset = myModel->translationOffset;
-    glTranslatef((GLfloat) offset.x(), (GLfloat) offset.y(), (GLfloat) offset.z());
-    Vector3d center = myModel->calculateCenter();
-    cout << "Center is " << center.x() << ' ' << center.y() << ' ' << center.x() << endl;
-
-    Quaterniond o = myModel->orientation;
-    cout << "Quaternion: " << o.w() << "," << o.x() << "," << o.y() << "," << o.z() << endl;
-    double halfTheta = acos(min(max(o.w(),-1.0),1.0));
-    cout << "halfTheta: " << halfTheta << endl;
-
-    double angle = 2 * halfTheta * (180 / PI);
-    
-    cout << "Angle: " << angle << endl;
-    
-    glRotatef(angle, o.x(), o.y(), o.z());
+    myModel->applyGlTransforms();
     
     cout << "Drawing started" << endl;
 

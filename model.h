@@ -1,23 +1,11 @@
 #pragma once
 
-#ifdef __APPLE__
-
-#  include <GL/glew.h>
-#  include <GL/freeglut.h>
-#  include <OpenGL/glext.h>
-#include <AGL/agl.h>
-
-#else
-#  include <GL/glew.h>
-#  include <GL/freeglut.h>
-#  include <GL/glext.h>
-#pragma comment(lib, "glew32.lib")
-#endif
-
-
 #include <string>
 #include <vector>
 #include <Eigen/Geometry>
+
+#include "openglincludes.h"
+
 using namespace Eigen;
 using namespace std;
 
@@ -46,6 +34,8 @@ public:
     Vector3d const & translateBy(Vector3d offset);
 
     Vector3d const & translateCenterTo(Vector3d vertex);
+    
+    void applyGlTransforms();
     
     void rotateX(double degrees);
     void rotateY(double degrees);
