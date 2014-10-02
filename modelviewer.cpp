@@ -1,15 +1,11 @@
-/////////////////////////////////////////////////////////////////////         
-// circle.cpp
-//
-// This program draws a line loop with vertices equally apart on 
-// a fixed circle. The larger the number of vertices the better
-// the loop approximates the circle.
-//
-// Interaction:
-// Press +/- to increase/decrease the number of vertices of the loop. 
-//
-// Sumanta Guha.
-///////////////////////////////////////////////////////////////////// 
+/*
+ *  modelViewer.cpp
+ *  modelViewer
+ *
+ *  Created by Colin Hunt.
+ *  Copyright 2014 Hunt Enterprises. All rights reserved.
+ *
+ */
 
 #include <cstdlib>
 #include <cmath>
@@ -26,6 +22,7 @@ using namespace Eigen;
 
 // Globals.
 static bool ortho = false;
+static bool showFog = false;
 static Model* myModel;
 static Camera* myCamera = new Camera();
 GLuint displayListID;
@@ -55,6 +52,21 @@ void drawScene(void) {
 
     glLoadIdentity(); // Load the Identity Matrix to reset our drawing locations
 
+    glEnable(GL_DEPTH_TEST);
+    
+    if (showFog) {
+        glEnable(GL_FOG);
+        float FogCol[3]={1,1,1};
+        glFogfv(GL_FOG_COLOR,FogCol);
+        glFogi(GL_FOG_MODE, GL_LINEAR);
+        glFogf(GL_FOG_START, 1.f);
+        glFogf(GL_FOG_END, 5.f);        
+    } else {
+        glDisable(GL_FOG);
+    }
+
+
+    
     glColor3f(0.0, 0.0, 0.0);
     
     myCamera->applyGlTransforms();
@@ -65,7 +77,6 @@ void drawScene(void) {
 
     glCallList(myModel->displayList);
 
-    glFlush();
     glutSwapBuffers();
 
     cout << "Drawing finished" << endl;
@@ -201,6 +212,14 @@ void keyInput(unsigned char key, int x, int y) {
         case 'L':
             rotateAndDraw(myCamera, 10, Vector3d::UnitZ());
             break;
+        case 'f':
+            showFog = false;
+            drawScene();
+            break;
+        case 'F':
+            showFog = true;
+            drawScene();
+            break;
         default:
             break;
     }
@@ -242,9 +261,9 @@ void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis) {
 // Routine to output interaction instructions to the C++ window.
 void printInteraction(void) {
     cout << "Interaction:" << endl;
+    cout << "Press 'w' to save the model to disk" << endl;
     cout << "Press 'v' for orthographic projection" << endl;
     cout << "Press 'V' for perspective projection" << endl;
-    cout << "Press 'w' to save the model to disk" << endl;
 }
 
 // Main routine.
@@ -260,7 +279,7 @@ int main(int argc, char **argv) {
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(100, 100);
-    glutCreateWindow("circle.cpp");
+    glutCreateWindow("modelviewer.cpp");
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -281,9 +300,6 @@ int main(int argc, char **argv) {
     glutReshapeFunc(resize);
     glutKeyboardFunc(keyInput);
     glutSpecialFunc(specialKeyInput);
-
-//    glewExperimental = GL_TRUE;
-//    glewInit();
 
     setup();
 

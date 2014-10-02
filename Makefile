@@ -6,7 +6,7 @@ LDLIBS = -lGLEW -lGLUT
 LDFLAGS = -L/opt/X11/lib -L/opt/local/lib -framework Cocoa -framework OpenGL -framework GLUT
 
 # regular variables used
-executable = circle
+executable = modelviewer
 
 $(executable): $(executable).o model.o GlTransformable.o Camera.o
 
