@@ -16,7 +16,9 @@
 #include <iostream>
 #include <Eigen/Geometry>
 
+#include "GlTransformable.h"
 #include "model.h"
+#include "Camera.h"
 #include "openglincludes.h"
 
 using namespace std;
@@ -25,6 +27,7 @@ using namespace Eigen;
 // Globals.
 static bool ortho = false;
 static Model* myModel;
+static Camera* myCamera = new Camera();
 GLuint displayListID;
 
 struct Vb {
@@ -38,7 +41,8 @@ struct Vb {
 
 void placeCamera();
 
-void translateAndDraw(double x, double y, double z);
+void translateAndDraw(GlTransformable* obj, double x, double y, double z);
+void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis);
 
 // Drawing routine.
 void drawScene(void) {
@@ -66,6 +70,7 @@ void drawScene(void) {
 void placeCamera() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+        
     if (ortho) {
         cout << "displaying ortho" << endl;
         glOrtho(vb.left, vb.right, vb.bottom, vb.top, vb.near, vb.far);
@@ -73,6 +78,9 @@ void placeCamera() {
         cout << "displaying persp" << endl;
         glFrustum(vb.left, vb.right, vb.bottom, vb.top, vb.near, vb.far);
     }
+
+    myCamera->applyGlTransforms();
+
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -119,34 +127,64 @@ void keyInput(unsigned char key, int x, int y) {
             myModel->saveToFile();
             break;
         case 'n':
-            translateAndDraw(0, 0, -0.1);
+            translateAndDraw(myModel, 0, 0, -0.1);
             break;
         case 'N':
-            translateAndDraw(0, 0, 0.1);
+            translateAndDraw(myModel, 0, 0, 0.1);
             break;
         case 'p':
-            myModel->rotateX(-10);
-            drawScene();
+            rotateAndDraw(myModel, -10, Vector3d::UnitX());
             break;
         case 'P':
-            myModel->rotateX(10);
-            drawScene();
+            rotateAndDraw(myModel, 10, Vector3d::UnitX());
             break;
         case 'y':
-            myModel->rotateY(-10);
-            drawScene();
+            rotateAndDraw(myModel, -10, Vector3d::UnitY());
             break;
         case 'Y':
-            myModel->rotateY(10);
-            drawScene();
+            rotateAndDraw(myModel, 10, Vector3d::UnitY());
             break;
         case 'r':
-            myModel->rotateZ(-10);
-            drawScene();
+            rotateAndDraw(myModel, -10, Vector3d::UnitZ());
             break;
         case 'R':
-            myModel->rotateZ(10);
-            drawScene();
+            rotateAndDraw(myModel, 10, Vector3d::UnitZ());
+            break;
+        case 'd':
+            translateAndDraw(myCamera, -0.1,0.0,0.0);
+            break;
+        case 'D':
+            translateAndDraw(myCamera, 0.1,0.0,0.0);
+            break;
+        case 'c':
+            translateAndDraw(myCamera, 0.0,-0.1,0.0);
+            break;
+        case 'C':
+            translateAndDraw(myCamera, 0.0,0.1,0.0);
+            break;
+        case 'i':
+            translateAndDraw(myCamera, 0.0,0.0,-0.1);
+            break;
+        case 'I':
+            translateAndDraw(myCamera, 0.0,0.0,0.1);
+            break;
+        case 't':
+            rotateAndDraw(myCamera, -10, Vector3d::UnitX());
+            break;
+        case 'T':
+            rotateAndDraw(myCamera, 10, Vector3d::UnitX());
+            break;
+        case 'a':
+            rotateAndDraw(myCamera, -10, Vector3d::UnitY());
+            break;
+        case 'A':
+            rotateAndDraw(myCamera, 10, Vector3d::UnitY());
+            break;
+        case 'l':
+            rotateAndDraw(myCamera, -10, Vector3d::UnitZ());
+            break;
+        case 'L':
+            rotateAndDraw(myCamera, 10, Vector3d::UnitZ());
             break;
         default:
             break;
@@ -156,19 +194,19 @@ void keyInput(unsigned char key, int x, int y) {
 void specialKeyInput(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_UP: {
-            translateAndDraw(0.0,0.1,0.0);
+            translateAndDraw(myModel, 0.0,0.1,0.0);
             break;
         }
         case GLUT_KEY_DOWN: {
-            translateAndDraw(0.0,-0.1,0.0);
+            translateAndDraw(myModel, 0.0,-0.1,0.0);
             break;
         }
         case GLUT_KEY_RIGHT: {
-            translateAndDraw(0.1,0.0,0.0);
+            translateAndDraw(myModel, 0.1,0.0,0.0);
             break;
         }
         case GLUT_KEY_LEFT: {
-            translateAndDraw(-0.1,0.0,0.0);
+            translateAndDraw(myModel, -0.1,0.0,0.0);
             break;
         }
         default:
@@ -176,9 +214,13 @@ void specialKeyInput(int key, int x, int y) {
     }
 }
 
-void translateAndDraw(double x, double y, double z) {
-    Vector3d offset(x,y,z);
-    myModel->translateBy(offset);
+void translateAndDraw(GlTransformable* obj, double x, double y, double z) {
+    obj->translateBy(Vector3d(x,y,z));
+    drawScene();
+}
+
+void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis) {
+    obj->rotateByAngleAxis(angle, axis);
     drawScene();
 }
 

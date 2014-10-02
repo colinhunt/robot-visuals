@@ -8,8 +8,12 @@ LDFLAGS = -L/opt/X11/lib -L/opt/local/lib -framework Cocoa -framework OpenGL -fr
 # regular variables used
 executable = circle
 
-$(executable): $(executable).o model.o
+$(executable): $(executable).o model.o GlTransformable.o Camera.o
 
-$(executable).o: $(executable).cpp model.h
+$(executable).o: $(executable).cpp model.h Camera.h
 
 model.o: model.cpp model.h
+
+GlTransformable.o: GlTransformable.cpp GlTransformable.h
+
+Camera.o: Camera.cpp Camera.h
