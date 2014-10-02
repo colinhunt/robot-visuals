@@ -9,3 +9,7 @@
 
 #include "Camera.h"
 
+void Camera::applyGlTransforms() const {
+    GltUtil::applyGlRotation(orientation.inverse());
+    GltUtil::applyGlTranslation(-translationOffset);
+}

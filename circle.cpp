@@ -47,16 +47,20 @@ void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis);
 // Drawing routine.
 void drawScene(void) {
     placeCamera();
-
+    
+    glMatrixMode(GL_MODELVIEW);
+    
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f); // Clear the background of our window to white
     glClear(GL_COLOR_BUFFER_BIT); //Clear the colour buffer (more buffers later on)
 
     glLoadIdentity(); // Load the Identity Matrix to reset our drawing locations
 
     glColor3f(0.0, 0.0, 0.0);
-
-    myModel->applyGlTransforms();
     
+    myCamera->applyGlTransforms();
+    
+    myModel->applyGlTransforms();
+
     cout << "Drawing started" << endl;
 
     glCallList(myModel->displayList);
@@ -78,10 +82,6 @@ void placeCamera() {
         cout << "displaying persp" << endl;
         glFrustum(vb.left, vb.right, vb.bottom, vb.top, vb.near, vb.far);
     }
-
-    myCamera->applyGlTransforms();
-
-    glMatrixMode(GL_MODELVIEW);
 }
 
 void createDisplayList() {

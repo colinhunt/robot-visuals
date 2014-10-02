@@ -21,14 +21,19 @@ class GlTransformable {
 public:
     GlTransformable();
     
-    Vector3d const & translateBy(Vector3d offset);
+    Vector3d const & translateBy(const Vector3d& offset);
 
-    void rotateByAngleAxis(double degrees, Vector3d axis);
-        
-    void applyGlTransforms();
+    void rotateByAngleAxis(double degrees, const Vector3d& axis);
+            
+    void applyGlTransforms() const;
 
     Vector3d translationOffset;
     Quaterniond orientation;
+};
+
+namespace GltUtil {
+    void applyGlRotation(const Quaterniond& rotation);
+    void applyGlTranslation(const Vector3d& translation);
 };
 
 #endif // GL_TRANSLATABLE_H

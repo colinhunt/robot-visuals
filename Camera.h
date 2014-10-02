@@ -13,7 +13,8 @@
 #include "GlTransformable.h"
 
 class Camera : public GlTransformable {
-    
+public:
+    void applyGlTransforms() const;
 };
 
 #endif // CAMERA_H
