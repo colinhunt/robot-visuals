@@ -35,6 +35,14 @@ void GlTransformable::applyGlTransforms() const {
     GltUtil::applyGlRotation(orientation);
 }
 
+void GlTransformable::reset() {
+    orientation.setIdentity();
+    translationOffset.setZero();
+}
+
+
+// GltUtil functions:
+
 void GltUtil::applyGlRotation(const Quaterniond& rotation) {
     double halfTheta = acos(min(max(rotation.w(),-1.0),1.0));    
     double angle = 2 * halfTheta * (180 / M_PI);

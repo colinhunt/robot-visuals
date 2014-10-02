@@ -27,6 +27,8 @@ public:
             
     void applyGlTransforms() const;
 
+    void reset();
+
     Vector3d translationOffset;
     Quaterniond orientation;
 };

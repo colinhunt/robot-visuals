@@ -98,6 +98,8 @@ void createDisplayList() {
 // Initialization routine.
 void setup(void) {
     cout << "Setup called" << endl;
+    // move the model to 0,0,-2
+    myModel->translateBy(Vector3d(0, 0, -2));
 
     glClearColor(1.0, 1.0, 1.0, 0.0);
 }
@@ -108,12 +110,25 @@ void resize(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
+void resetAndDraw() {
+    myModel->reset();
+    myCamera->reset();
+    setup();
+    drawScene();
+}
+
 // Keyboard input processing routine.
 void keyInput(unsigned char key, int x, int y) {
     cout << "Keypress: " << key << endl;
     switch (key) {
         case 27:
             exit(0);
+            break;
+        case 'q':
+            exit(0);
+            break;
+        case 'x':
+            resetAndDraw();
             break;
         case 'v':
             ortho = true;
@@ -236,10 +251,6 @@ void printInteraction(void) {
 int main(int argc, char **argv) {
     myModel = new Model("man.obj");
 
-    // move the model to 0,0,-2
-    Vector3d v(0, 0, -2);
-    myModel->translateBy(v);
-
     printInteraction();
     glutInit(&argc, argv);
 
@@ -274,7 +285,7 @@ int main(int argc, char **argv) {
 //    glewExperimental = GL_TRUE;
 //    glewInit();
 
-//    setup();
+    setup();
 
     glutMainLoop();
     return 0;
