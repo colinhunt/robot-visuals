@@ -1,2 +1,2 @@
-cmput411
+assignment1
 ========
