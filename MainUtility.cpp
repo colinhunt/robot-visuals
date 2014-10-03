@@ -23,7 +23,7 @@ using namespace std;
 using namespace Eigen;
 
 // Globals.
-static bool ortho = false;
+static bool ortho = true;
 static bool showFog = false;
 static Model* myModel;
 static Camera* myCamera = new Camera();
@@ -51,13 +51,12 @@ void drawScene(void) {
     glMatrixMode(GL_MODELVIEW);
     
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f); // Clear the background of our window to white
-    glClear(GL_COLOR_BUFFER_BIT); //Clear the colour buffer (more buffers later on)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glLoadIdentity(); // Load the Identity Matrix to reset our drawing locations
-
-    glEnable(GL_DEPTH_TEST);
     
     if (showFog) {
+        glEnable(GL_DEPTH_TEST);
         glEnable(GL_FOG);
         float FogCol[3]={1,1,1};
         glFogfv(GL_FOG_COLOR,FogCol);
@@ -66,10 +65,9 @@ void drawScene(void) {
         glFogf(GL_FOG_END, 5.f);        
     } else {
         glDisable(GL_FOG);
+        glDisable(GL_DEPTH_TEST);
     }
 
-
-    
     glColor3f(0.0, 0.0, 0.0);
     
     myCamera->applyGlTransforms();
@@ -315,12 +313,18 @@ void loadDataIntoVertexArray() {
 }
 
 void initializeGlutGlewModel(int* argc, char **argv) {
-    myModel = new Model("man.obj");
+    if (*argc < 2) {
+        cerr << "Require argument specifying .obj file.\n";
+        exit(EXIT_FAILURE);
+    }
+
+    cout << argv[1] << endl;
+    myModel = new Model(argv[1]);
     
     printInteraction();
     glutInit(argc, argv);
     
-    glutInitContextVersion(4, 3);
+    glutInitContextVersion(4, 2);
     glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
     
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);

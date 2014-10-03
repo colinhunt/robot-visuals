@@ -1,7 +1,7 @@
 CC = g++
 CXXFLAGS = -I/usr/include -Wno-write-strings
 LDLIBS = -lglut -lGLEW -lGL -lGLU -lX11
-LDFLAGS = -L/usr/lib
+LDFLAGS = -L/usr/lib -L/usr/lib/nvidia-304-updates
 
 mainOfiles = model.o GlTransformable.o Camera.o MainUtility.o
 mainHeaders = model.h Camera.h MainUtility.h

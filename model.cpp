@@ -44,12 +44,14 @@ void Model::initFromObjFile(char const *fileName) {
     ifstream myfile(fileName);
     if (myfile.is_open()) {
         while (getline(myfile, line)) {
-            stringstream lineStream(line.substr(2));
-            if (line[0] == 'v') {
+            string token;
+            stringstream lineStream(line);
+            lineStream >> token;
+            if (token == "v") {
                 Vertex vertex;
                 lineStream >> vertex.x >> ws >> vertex.y >> ws >> vertex.z;
                 vertices.push_back(vertex);
-            } else if (line[0] == 'f') {
+            } else if (token == "f") {
                 int faceA[4] = {0,0,0,0};
                 vector<int> faceV;
                 lineStream >> faceA[0] >> ws >> faceA[1] >> ws >> faceA[2] >> ws >> faceA[3];
@@ -66,7 +68,7 @@ void Model::initFromObjFile(char const *fileName) {
                     facesFlattened.push_back(faceV[3]);
                     facesFlattened.push_back(faceV[0]);
                 }
-            } else if (line[0] == 'o') {
+            } else if (token == "o") {
                 lineStream >> name;
             } else {
                 cerr << "Unrecognized line: " << line << endl;
