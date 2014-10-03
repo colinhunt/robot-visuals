@@ -7,7 +7,11 @@
  *
  */
 
+#include <iostream>
+
 #include "GlTransformable.h"
+
+using namespace std;
 
 const double PIOVER180 = M_PI / 180;
 
