@@ -16,6 +16,8 @@ int main(int argc, char **argv) {
     
     loadDataIntoVBO();
     
+    setDrawingFunc(drawModelVBO);
+    
     prepareAndStartMainLoop();
     
     return 0;

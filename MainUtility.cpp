@@ -38,6 +38,8 @@ struct Vb {
     double far;
 } vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
 
+void (*drawModel)(void);
+
 void placeCamera();
 void translateAndDraw(GlTransformable* obj, double x, double y, double z);
 void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis);
@@ -76,12 +78,24 @@ void drawScene(void) {
 
     cout << "Drawing started" << endl;
     
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myModel->ibo);
-    glDrawElements(GL_TRIANGLES, (GLsizei) myModel->facesFlattened.size(), GL_UNSIGNED_INT, (void*)0);        
-
+    drawModel();
+    
     glutSwapBuffers();
 
     cout << "Drawing finished" << endl;
+}
+
+
+void drawModelDisplayList() {
+    glCallList(myModel->displayList);
+}
+void drawModelVBO() {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myModel->ibo);
+    glDrawElements(GL_TRIANGLES, (GLsizei) myModel->facesFlattened.size(), GL_UNSIGNED_INT, (void*)0);            
+}
+
+void setDrawingFunc(void (*drawFunc)(void)) {
+    drawModel = drawFunc;
 }
 
 void placeCamera() {
@@ -103,8 +117,7 @@ void createDisplayList() {
 
     // compile the display list of drawing the model
     glNewList(index, GL_COMPILE);
-//    myModel->draw(GL_POLYGON);
-    glDrawArrays(GL_TRIANGLES, 0, myModel->vertices.size());
+    myModel->draw(GL_POLYGON);
     glEndList();
     myModel->setDisplayList(index);
 }
@@ -116,6 +129,7 @@ void setup(void) {
     myModel->translateBy(Vector3d(0, 0, -2));
 
     glClearColor(1.0, 1.0, 1.0, 0.0);
+    
 }
 
 // OpenGL window reshape routine.
@@ -290,8 +304,18 @@ void loadDataIntoVBO() {
                     0);
 }
 
+void loadDataIntoVertexArray() {
+    //pass the vertex pointer:
+    glVertexPointer(3,   //3 components per vertex (x,y,z)
+                    GL_DOUBLE,
+                    sizeof(Model::Vertex),
+                    myModel->vertexArray());
+    
+    createDisplayList();
+}
+
 void initializeGlutGlewModel(int* argc, char **argv) {
-    myModel = new Model("cube.obj");
+    myModel = new Model("man.obj");
     
     printInteraction();
     glutInit(argc, argv);
@@ -305,12 +329,13 @@ void initializeGlutGlewModel(int* argc, char **argv) {
     glutCreateWindow("modelviewer.cpp");
     
     glewInit();
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);   
+    
+    //Enable the vertex array functionality:
+    glEnableClientState(GL_VERTEX_ARRAY);
 }
 
 void prepareAndStartMainLoop() {
-    //Enable the vertex array functionality:
-    glEnableClientState(GL_VERTEX_ARRAY);
     
     glClearColor(1.0, 1.0, 1.0, 0.0);
     
