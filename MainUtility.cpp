@@ -281,6 +281,12 @@ void printInteraction(void) {
     cout << "Press 'V' for perspective projection" << endl;
 }
 
+void loadDataIntoVAO() {
+    glGenVertexArrays(1, &myModel->vao);
+    glBindVertexArray(myModel->vao);
+    loadDataIntoVBO();
+}
+
 void loadDataIntoVBO() {
     
     const Model::Vertex* data = myModel->vertexArray();
@@ -288,6 +294,8 @@ void loadDataIntoVBO() {
     glBindBuffer(GL_ARRAY_BUFFER, myModel->vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Model::Vertex) * myModel->vertices.size(), data, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, myModel->vbo);
+    glEnableVertexAttribArray(0);
+
     
     int* indices = &myModel->facesFlattened[0];
     glGenBuffers(1, &myModel->ibo);
@@ -296,8 +304,15 @@ void loadDataIntoVBO() {
     
     
     //pass the vertex pointer:
-    glVertexPointer(3,   //3 components per vertex (x,y,z)
+    // glVertexPointer(3,   //3 components per vertex (x,y,z)
+    //                 GL_DOUBLE,
+    //                 sizeof(Model::Vertex),
+    //                 0);
+
+    glVertexAttribPointer(0,
+                    3,   //3 components per vertex (x,y,z)
                     GL_DOUBLE,
+                    GL_FALSE,
                     sizeof(Model::Vertex),
                     0);
 }

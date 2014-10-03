@@ -17,6 +17,11 @@ modelviewerVBO: modelviewerVBO.o $(mainOfiles)
 
 modelviewerVBO.o: modelviewerVBO.cpp $(mainHeaders)
 
+modelviewerVAO: modelviewerVAO.o $(mainOfiles)
+
+modelviewerVAO.o: modelviewerVAO.cpp $(mainHeaders)
+
+
 model.o: model.cpp model.h
 
 GlTransformable.o: GlTransformable.cpp GlTransformable.h

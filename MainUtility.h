@@ -20,6 +20,8 @@ void prepareAndStartMainLoop();
     
 void initializeGlutGlewModel(int* argc, char **argv);
 
+void loadDataIntoVAO();
+
 void loadDataIntoVBO();
 
 void loadDataIntoVertexArray();

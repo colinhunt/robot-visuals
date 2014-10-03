@@ -40,6 +40,7 @@ public:
     vector<int> facesFlattened;
     unsigned int displayList;
     GLuint vbo;
+    GLuint vao;
     GLuint ibo;
     
 private:
