@@ -37,7 +37,10 @@ public:
     string name;
     vector<Vertex> vertices;
     vector< vector<int> > faces;
+    vector<int> facesFlattened;
     unsigned int displayList;
+    GLuint vbo;
+    GLuint ibo;
     
 private:
 

@@ -54,9 +54,18 @@ void Model::initFromObjFile(char const *fileName) {
                 vector<int> faceV;
                 lineStream >> faceA[0] >> ws >> faceA[1] >> ws >> faceA[2] >> ws >> faceA[3];
                 for (int i = 0; i < 4; ++i)
-                    if (faceA[i] != 0)
+                    if (faceA[i] != 0) {
                         faceV.push_back(faceA[i] - 1);
+                    }
                 faces.push_back(faceV);
+                facesFlattened.push_back(faceV[0]);
+                facesFlattened.push_back(faceV[1]);
+                facesFlattened.push_back(faceV[2]);
+                if (faceV.size() > 3) {
+                    facesFlattened.push_back(faceV[2]);
+                    facesFlattened.push_back(faceV[3]);
+                    facesFlattened.push_back(faceV[0]);
+                }
             } else if (line[0] == 'o') {
                 lineStream >> name;
             } else {
@@ -85,6 +94,7 @@ void Model::normalize() {
     Vector3d diagonal = pmax - pmin;
 
     double scale = max(max(diagonal.x(), diagonal.y()), diagonal.z());
+    cout << "Scale: " << scale << endl;
     for (int i = 0; i < vertices.size(); ++i) {
         vertices[i].x += offset.x();
         vertices[i].y += offset.y();
