@@ -5,8 +5,8 @@ CXXFLAGS = -I/opt/X11/include -I/opt/local/include -Wno-write-strings
 LDLIBS = -lGLEW -lGLUT
 LDFLAGS = -L/opt/X11/lib -L/opt/local/lib -framework Cocoa -framework OpenGL -framework GLUT
 
-mainOfiles = model.o GlTransformable.o Camera.o
-mainHeaders = model.h Camera.h
+mainOfiles = model.o GlTransformable.o Camera.o MainUtility.o
+mainHeaders = model.h Camera.h MainUtility.h
 
 
 all: modelviewer modelviewerVBO
@@ -24,6 +24,8 @@ model.o: model.cpp model.h
 GlTransformable.o: GlTransformable.cpp GlTransformable.h
 
 Camera.o: Camera.cpp Camera.h
+
+MainUtility.o: MainUtility.cpp MainUtility.h
 
 clean:
 	rm -rf modelviewer modelviewerVBO *.o
