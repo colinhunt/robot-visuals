@@ -36,7 +36,10 @@ void Model::saveToFile() const {
             myfile << endl;
         }
     }
-    else cerr << "Error: " << strerror(errno) << endl;
+    else {
+        cerr << "Error: " << strerror(errno) << endl;
+        exit(errno);
+    }
 }
 
 void Model::initFromObjFile(char const *fileName) {
@@ -71,7 +74,6 @@ void Model::initFromObjFile(char const *fileName) {
             } else if (token == "o") {
                 lineStream >> name;
             } else {
-                cerr << "Unrecognized line: " << line << endl;
             }
         }
         myfile.close();
@@ -83,6 +85,7 @@ void Model::initFromObjFile(char const *fileName) {
             cout << "Read/writing error" << endl;
         cout << "Unable to open file" << endl;
         cerr << "Error: " << strerror(errno) << endl;
+        exit(errno);
     }
 }
 
@@ -96,7 +99,6 @@ void Model::normalize() {
     Vector3d diagonal = pmax - pmin;
 
     double scale = max(max(diagonal.x(), diagonal.y()), diagonal.z());
-    cout << "Scale: " << scale << endl;
     for (int i = 0; i < vertices.size(); ++i) {
         vertices[i].x += offset.x();
         vertices[i].y += offset.y();

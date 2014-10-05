@@ -29,9 +29,7 @@ void GlTransformable::rotateByAngleAxis(double degrees, const Vector3d& axis) {
     double radians = degrees * PIOVER180;
     Quaterniond r;
     r = AngleAxisd(radians, axis);
-    cout << "rotation: " << r.w() << "," << r.x() << "," << r.y() << "," << r.z() << endl;
     orientation *= r;
-    cout << "orientation right after rotation: " << orientation.w() << "," << orientation.x() << "," << orientation.y() << "," << orientation.z() << endl;
 }
 
 void GlTransformable::applyGlTransforms() const {
@@ -51,8 +49,6 @@ void GltUtil::applyGlRotation(const Quaterniond& rotation) {
     double halfTheta = acos(min(max(rotation.w(),-1.0),1.0));    
     double angle = 2 * halfTheta * (180 / M_PI);
     
-    cout << "Angle: " << angle << endl;
-    
     glRotatef(angle, rotation.x(), rotation.y(), rotation.z());        
 }
 
@@ -60,5 +56,4 @@ void GltUtil::applyGlTranslation(const Vector3d& translation) {
     glTranslatef((GLfloat) translation.x(), 
                  (GLfloat) translation.y(), 
                  (GLfloat) translation.z());
-    cout << translation << endl;
 }

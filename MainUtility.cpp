@@ -73,14 +73,10 @@ void drawScene(void) {
     myCamera->applyGlTransforms();
     
     myModel->applyGlTransforms();
-
-    cout << "Drawing started" << endl;
     
     drawModel();
     
     glutSwapBuffers();
-
-    cout << "Drawing finished" << endl;
 }
 
 
@@ -101,10 +97,8 @@ void placeCamera() {
     glLoadIdentity();
         
     if (ortho) {
-        cout << "displaying ortho" << endl;
         glOrtho(vb.left, vb.right, vb.bottom, vb.top, vb.near, vb.far);
     } else {
-        cout << "displaying persp" << endl;
         glFrustum(vb.left, vb.right, vb.bottom, vb.top, vb.near, vb.far);
     }
 }
@@ -122,7 +116,6 @@ void createDisplayList() {
 
 // Initialization routine.
 void setup(void) {
-    cout << "Setup called" << endl;
     // move the model to 0,0,-2
     myModel->translateBy(Vector3d(0, 0, -2));
 
@@ -132,7 +125,6 @@ void setup(void) {
 
 // OpenGL window reshape routine.
 void resize(int w, int h) {
-    cout << "Resize called" << endl;
     glViewport(0, 0, w, h);
 }
 
@@ -145,7 +137,6 @@ void resetAndDraw() {
 
 // Keyboard input processing routine.
 void keyInput(unsigned char key, int x, int y) {
-    cout << "Keypress: " << key << endl;
     switch (key) {
         case 27:
             exit(0);
@@ -276,9 +267,37 @@ void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis) {
 // Routine to output interaction instructions to the C++ window.
 void printInteraction(void) {
     cout << "Interaction:" << endl;
+    cout << "Press 'q' to quit" << endl;
     cout << "Press 'w' to save the model to disk" << endl;
     cout << "Press 'v' for orthographic projection" << endl;
     cout << "Press 'V' for perspective projection" << endl;
+    cout << "Press 'up arrow' to translate the model up" << endl;
+    cout << "Press 'down arrow' to translate the model down" << endl;
+    cout << "Press 'left arrow' to translate the model left" << endl;
+    cout << "Press 'right arrow' to translate the model right" << endl;
+    cout << "Press 'n' to translate the model -0.1 z" << endl;
+    cout << "Press 'N' to translate the model 0.1 z" << endl;
+    cout << "Press 'p' to pitch the model by -10 degrees" << endl;
+    cout << "Press 'P' to pitch the model by 10 degrees" << endl;
+    cout << "Press 'y' to yaw the model by -10 degrees" << endl;
+    cout << "Press 'Y' to yaw the model by 10 degrees" << endl;
+    cout << "Press 'r' to roll the model by -10 degrees" << endl;
+    cout << "Press 'R' to roll the model by 10 degrees" << endl;
+    cout << "Press 'd' to translate the camera -0.1 x" << endl;
+    cout << "Press 'D' to translate the camera 0.1 x" << endl;
+    cout << "Press 'c' to translate the camera -0.1 y" << endl;
+    cout << "Press 'C' to translate the camera 0.1 y" << endl;
+    cout << "Press 'i' to translate the camera -0.1 z" << endl;
+    cout << "Press 'I' to translate the camera 0.1 z" << endl;
+    cout << "Press 't' to tilt the camera by -10 degrees" << endl;
+    cout << "Press 'T' to tilt the camera by 10 degrees" << endl;
+    cout << "Press 'a' to pan the camera by -10 degrees" << endl;
+    cout << "Press 'A' to pan the camera by 10 degrees" << endl;
+    cout << "Press 'l' to roll the camera by -10 degrees" << endl;
+    cout << "Press 'L' to roll the camera by 10 degrees" << endl;
+    cout << "Press 'x' to reset model and camera position" << endl;
+    cout << "Press 'f' to turn off fog" << endl;
+    cout << "Press 'F' to turn on fog" << endl;
 }
 
 void loadDataIntoVAO() {
@@ -342,7 +361,6 @@ void initializeGlutGlewModel(int* argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    cout << argv[1] << endl;
     myModel = new Model(argv[1]);
     
     printInteraction();
