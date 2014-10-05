@@ -7,7 +7,7 @@ mainOfiles = model.o GlTransformable.o Camera.o MainUtility.o
 mainHeaders = model.h Camera.h MainUtility.h
 
 
-all: modelviewer modelviewerVBO
+all: modelviewer modelviewerVBO modelviewerVAO
 
 modelviewer: modelviewer.o $(mainOfiles)
 
@@ -34,4 +34,4 @@ clean:
 	rm -rf modelviewer modelviewerVBO modelviewerVAO *.o
 	
 zip:
-	zip modelviewer.zip *.cpp *.h Makefile README.md
+	zip modelviewer.zip *.cpp *.h Makefile
