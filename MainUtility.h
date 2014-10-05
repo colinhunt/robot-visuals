@@ -24,6 +24,10 @@ void loadDataIntoVAO();
 
 void loadDataIntoVBO();
 
+void loadDataIntoVertexPointer();
+    
+void loadDataIntoVertexAttribPointer();
+    
 void loadDataIntoVertexArray();
     
 void drawModelVBO();

@@ -16,6 +16,8 @@ int main(int argc, char **argv) {
     
     loadDataIntoVAO();
     
+    loadDataIntoVertexAttribPointer();
+    
     setDrawingFunc(drawModelVBO);
     
     prepareAndStartMainLoop();

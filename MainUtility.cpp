@@ -282,8 +282,13 @@ void printInteraction(void) {
 }
 
 void loadDataIntoVAO() {
+#ifdef __APPLE__
+    glGenVertexArraysAPPLE(1, &myModel->vao);
+    glBindVertexArrayAPPLE(myModel->vao);
+#else
     glGenVertexArrays(1, &myModel->vao);
     glBindVertexArray(myModel->vao);
+#endif
     loadDataIntoVBO();
 }
 
@@ -301,20 +306,24 @@ void loadDataIntoVBO() {
     glGenBuffers(1, &myModel->ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myModel->ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * myModel->facesFlattened.size(), indices, GL_STATIC_DRAW);
-    
-    
-    //pass the vertex pointer:
-    // glVertexPointer(3,   //3 components per vertex (x,y,z)
-    //                 GL_DOUBLE,
-    //                 sizeof(Model::Vertex),
-    //                 0);
+        
+}
 
-    glVertexAttribPointer(0,
-                    3,   //3 components per vertex (x,y,z)
+void loadDataIntoVertexPointer() {
+    // pass the vertex pointer:
+    glVertexPointer(3,   //3 components per vertex (x,y,z)
                     GL_DOUBLE,
-                    GL_FALSE,
                     sizeof(Model::Vertex),
                     0);
+}
+
+void loadDataIntoVertexAttribPointer() {
+    glVertexAttribPointer(0,
+                          3,   //3 components per vertex (x,y,z)
+                          GL_DOUBLE,
+                          GL_FALSE,
+                          sizeof(Model::Vertex),
+                          0);    
 }
 
 void loadDataIntoVertexArray() {
