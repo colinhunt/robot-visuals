@@ -31,4 +31,7 @@ Camera.o: Camera.cpp Camera.h
 MainUtility.o: MainUtility.cpp MainUtility.h
 
 clean:
-	rm -rf modelviewer modelviewerVBO *.o
+	rm -rf modelviewer modelviewerVBO modelviewerVAO *.o
+	
+zip:
+	zip modelviewer.zip *.cpp *.h Makefile README.md
