@@ -308,6 +308,7 @@ void loadDataIntoVAO() {
     glGenVertexArrays(1, &myModel->vao);
     glBindVertexArray(myModel->vao);
 #endif
+    glEnableVertexAttribArray(0);
     loadDataIntoVBO();
 }
 
@@ -318,7 +319,6 @@ void loadDataIntoVBO() {
     glBindBuffer(GL_ARRAY_BUFFER, myModel->vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Model::Vertex) * myModel->vertices.size(), data, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, myModel->vbo);
-    glEnableVertexAttribArray(0);
 
     
     int* indices = &myModel->facesFlattened[0];

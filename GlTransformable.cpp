@@ -16,8 +16,8 @@ using namespace std;
 const double PIOVER180 = M_PI / 180;
 
 
-GlTransformable::GlTransformable() : translationOffset(0,0,0), orientation(1, 0, 0, 0) {
-
+GlTransformable::GlTransformable() {
+    reset();
 }
 
 const Vector3d& GlTransformable::translateBy(const Vector3d& offset) {

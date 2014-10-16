@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     
     loadDataIntoVBO();
     
-    loadDataIntoVertexAttribPointer();
+    loadDataIntoVertexPointer();
     
     setDrawingFunc(drawModelVBO);
     
