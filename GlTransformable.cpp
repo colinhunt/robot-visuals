@@ -13,8 +13,13 @@
 
 using namespace std;
 
-const double PIOVER180 = M_PI / 180;
+double toRadians(double degrees) {
+    return degrees * (M_PI / 180);
+}
 
+double toDegrees(double radians) {
+    return radians * (180 / M_PI);
+}
 
 GlTransformable::GlTransformable() {
     reset();
@@ -26,7 +31,7 @@ const Vector3d& GlTransformable::translateBy(const Vector3d& offset) {
 }
 
 void GlTransformable::rotateByAngleAxis(double degrees, const Vector3d& axis) {
-    double radians = degrees * PIOVER180;
+    double radians = toRadians(degrees);
     Quaterniond r;
     r = AngleAxisd(radians, axis);
     orientation *= r;
@@ -47,13 +52,13 @@ void GlTransformable::reset() {
 
 void GltUtil::applyGlRotation(const Quaterniond& rotation) {
     double halfTheta = acos(min(max(rotation.w(),-1.0),1.0));    
-    double angle = 2 * halfTheta * (180 / M_PI);
+    double angle = toDegrees(2 * halfTheta);
     
-    glRotatef(angle, rotation.x(), rotation.y(), rotation.z());        
+    glRotated(angle, rotation.x(), rotation.y(), rotation.z());
 }
 
 void GltUtil::applyGlTranslation(const Vector3d& translation) {
-    glTranslatef((GLfloat) translation.x(), 
-                 (GLfloat) translation.y(), 
-                 (GLfloat) translation.z());
+    glTranslated(translation.x(),
+                 translation.y(),
+                 translation.z());
 }
