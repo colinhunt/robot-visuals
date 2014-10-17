@@ -12,14 +12,7 @@
 #include "GlTransformable.h"
 
 using namespace std;
-
-double toRadians(double degrees) {
-    return degrees * (M_PI / 180);
-}
-
-double toDegrees(double radians) {
-    return radians * (180 / M_PI);
-}
+using namespace GltUtil;
 
 GlTransformable::GlTransformable() {
     reset();

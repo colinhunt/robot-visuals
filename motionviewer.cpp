@@ -74,7 +74,7 @@ void drawSkeleton2() {
 //    for (int i = 0; i < 100; ++i) {
 //        f.rotations.push_back(Quaterniond(1,0,0,0));
 //    }
-    glTranslated(0, -17, 0);
+    glTranslated(0, 0, -25);
 
     pose(data.skeleton, data.motion.frames[currFrame++]);
 

@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef GL_TRANSLATABLE_H
-#define GL_TRANSLATABLE_H
+#ifndef GL_TRANSFORMABLE_H
+#define GL_TRANSFORMABLE_H
 
 #include <Eigen/Geometry>
 #include "openglincludes.h"
@@ -36,6 +36,16 @@ public:
 namespace GltUtil {
     void applyGlRotation(const Quaterniond& rotation);
     void applyGlTranslation(const Vector3d& translation);
+
+    inline
+    double toRadians(double degrees) {
+        return degrees * (M_PI / 180);
+    }
+
+    inline
+    double toDegrees(double radians) {
+        return radians * (180 / M_PI);
+    }
 };
 
-#endif // GL_TRANSLATABLE_H
+#endif // GL_TRANSFORMABLE_H

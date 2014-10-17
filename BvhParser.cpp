@@ -5,7 +5,6 @@
 #include <sstream>
 #include <string>
 #include <sys/errno.h>
-#include <Python/Python.h>
 
 
 class BvhParser {
@@ -73,6 +72,7 @@ private:
         lineStream2 >> token >> token >> data.motion.frameTime;
         cout << "Frames: " << data.motion.numFrames << endl;
         cout << "Frame Time: " << data.motion.frameTime << endl;
+        cout << "Rotations/Frame: " << data.motion.rotationsPerFrame << endl;
         while (getline(myfile, line)) {
             Frame f;
             stringstream lineStream(line);
@@ -81,12 +81,13 @@ private:
             f.translation = getTranslation(0, n1)
                     * getTranslation(1, n2)
                     * getTranslation(2, n3);
-            for (int i = 3; i < data.motion.rotationsPerFrame; i += 3) {
+            for (int i = 0; i < data.motion.rotationsPerFrame; ++i) {
+                int fi = (i + 1) * 3;
                 lineStream >> n1 >> n2 >> n3;
                 Quaterniond q;
-                q = getQuaternion(i, n1)
-                        * getQuaternion(i+1, n2)
-                        * getQuaternion(i+2, n3);
+                q = getQuaternion(fi, n1)
+                        * getQuaternion(fi+1, n2)
+                        * getQuaternion(fi+2, n3);
                 f.rotations.push_back(q);
             }
             data.motion.frames.push_back(f);
@@ -151,9 +152,10 @@ void parseBvhFile(char* fileName, BvhData &data) {
         parser.parse();
         cout << data.motion.channels.size() << endl;
         cout << data.motion.frames.size() << endl;
+        cout << data.motion.frames[0].rotations.size() << endl;
         for (int i = 0; i < data.motion.frames[0].rotations.size(); ++i) {
             Quaterniond q = data.motion.frames[0].rotations[i];
-            cout << q.x() << q.y() << q.z() << ":";
+            cout << q.w() << q.x() << q.y() << q.z() << ":";
         }
         cout << endl;
     } else {
@@ -180,6 +182,7 @@ Translation3d BvhParser::getTranslation(int i, double n) {
 }
 
 AngleAxisd BvhParser::getQuaternion(int i, double n) {
+    n = GltUtil::toRadians(n);
     if (data.motion.channels[i] == "Xrotation")
         return AngleAxisd(n, Vector3d::UnitX());
     if (data.motion.channels[i] == "Yrotation")
