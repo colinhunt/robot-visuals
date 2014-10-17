@@ -24,13 +24,3 @@ void Joint::draw() {
 
     glEnd();
 }
-
-Translation3d Joint::getTranslation(double v1, double v2, double v3) const {
-    double mapped[3];
-
-    mapped[positionMap[0]] = v1;
-    mapped[positionMap[1]] = v2;
-    mapped[positionMap[2]] = v3;
-
-    return Translation3d(mapped[0], mapped[1], mapped[2]);
-}

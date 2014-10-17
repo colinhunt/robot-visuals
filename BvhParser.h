@@ -12,6 +12,7 @@ struct Motion {
     int numFrames;
     int rotationsPerFrame;
     double frameTime;
+    vector<string> channels;
     vector<Frame> frames;
 };
 
