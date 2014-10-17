@@ -26,8 +26,8 @@ GlTransformable::GlTransformable() {
 }
 
 const Vector3d& GlTransformable::translateBy(const Vector3d& offset) {
-    translationOffset += (orientation * offset);
-    return translationOffset;
+    this->offset += (orientation * offset);
+    return offset;
 }
 
 void GlTransformable::rotateByAngleAxis(double degrees, const Vector3d& axis) {
@@ -38,13 +38,13 @@ void GlTransformable::rotateByAngleAxis(double degrees, const Vector3d& axis) {
 }
 
 void GlTransformable::applyGlTransforms() const {
-    GltUtil::applyGlTranslation(translationOffset);
+    GltUtil::applyGlTranslation(offset);
     GltUtil::applyGlRotation(orientation);
 }
 
 void GlTransformable::reset() {
     orientation.setIdentity();
-    translationOffset.setZero();
+    offset.setZero();
 }
 
 

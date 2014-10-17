@@ -29,7 +29,7 @@ public:
 
     void reset();
 
-    Vector3d translationOffset;
+    Vector3d offset;
     Quaterniond orientation;
 };
 

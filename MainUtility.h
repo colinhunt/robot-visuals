@@ -34,6 +34,8 @@ void drawModelVBO();
 
 void drawModelDisplayList();
 
+void drawSkeleton();
+
 void setDrawingFunc(void (*func)(void));
 
 #endif // MAIN_UTILITY_H
