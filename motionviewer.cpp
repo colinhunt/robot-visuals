@@ -31,8 +31,6 @@ int main(int argc, char **argv) {
 
     parseBvhFile(argv[1], data);
 
-//    frames = framesFromBVH(argv[1]);
-
     initializeGlutGlewModel(&argc, argv);
     
     setDrawingFunc(drawSkeleton2);
@@ -70,13 +68,17 @@ void poseJoints(Joint& joint, vector<Quaterniond> const& rotations) {
 }
 
 void drawSkeleton2() {
-    Frame f;
-    f.translation = Translation3d(0, 0, -25);
-    for (int i = 0; i < 100; ++i) {
-        f.rotations.push_back(Quaterniond(1,0,0,0));
-    }
+    static unsigned currFrame = 0;
+//    Frame f;
+//    f.translation = Translation3d(0, 0, -25);
+//    for (int i = 0; i < 100; ++i) {
+//        f.rotations.push_back(Quaterniond(1,0,0,0));
+//    }
+    glTranslated(0, -17, 0);
 
-    pose(data.skeleton, f);
+    pose(data.skeleton, data.motion.frames[currFrame++]);
+
+    currFrame = currFrame % data.motion.frames.size();
 }
 
 

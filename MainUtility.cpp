@@ -137,6 +137,9 @@ void keyInput(unsigned char key, int x, int y) {
         case 'L':
             rotateAndDraw(myCamera, 10, Vector3d::UnitZ());
             break;
+        case 'p':
+            drawScene();
+            break;
         default:
             break;
     }
