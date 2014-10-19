@@ -25,9 +25,9 @@ public:
 
     void rotateByAngleAxis(double degrees, const Vector3d& axis);
             
-    void applyGlTransforms() const;
+    virtual void applyGlTransforms() const;
 
-    void reset();
+    virtual void reset();
 
     Vector3d offset;
     Quaterniond orientation;
