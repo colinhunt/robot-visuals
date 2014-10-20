@@ -27,8 +27,8 @@ using namespace Eigen;
 void (*drawModel)(void);
 
 void placeCamera();
-void translateAndDraw(GlTransformable* obj, double x, double y, double z);
-void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis);
+void translateAndDraw(GlTransformable &obj, double x, double y, double z);
+void rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis);
 
 TimeVal frameTime = 0.008333;
 FrameTimer timer(frameTime);
@@ -61,6 +61,7 @@ void animate() {
     if (animateOn && timer.TimeLeft() <= 0) {
         glutPostRedisplay();
         timer.Start();
+        ++currFrame;
     }
 }
 
@@ -87,7 +88,7 @@ void resize(int w, int h) {
 }
 
 void resetAndDraw() {
-    myCamera->reset();
+    myCamera.reset();
     setup();
     drawScene();
 }
@@ -170,13 +171,13 @@ void specialKeyInput(int key, int x, int y) {
     }
 }
 
-void translateAndDraw(GlTransformable* obj, double x, double y, double z) {
-    obj->translateBy(Vector3d(x,y,z));
+void translateAndDraw(GlTransformable &obj, double x, double y, double z) {
+    obj.translateBy(Vector3d(x,y,z));
     drawScene();
 }
 
-void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis) {
-    obj->rotateByAngleAxis(angle, axis);
+void rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis) {
+    obj.rotateByAngleAxis(angle, axis);
     drawScene();
 }
 

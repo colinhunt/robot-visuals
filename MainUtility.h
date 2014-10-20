@@ -22,8 +22,8 @@ static struct Vb {
 } vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
 
 // Globals.
-static Camera* myCamera = new Camera();
-
+extern Camera myCamera;
+extern unsigned currFrame;
 
 void resize(int w, int h);
 

@@ -19,6 +19,10 @@ void poseJoints(Joint& joint, vector<Quaterniond> const& rotations);
 void pose(Skeleton& skeleton, const Frame& frame);
 void calculateMovementBox(Vector3d& maxP, Vector3d& minP);
 
+// Globals
+Camera myCamera;
+unsigned currFrame = 0;
+
 BvhData data;
 
 Vector3d maxP, minP;
@@ -67,6 +71,7 @@ int main(int argc, char **argv) {
 
     scale = min(scale1, scale2);
 
+    currFrame = 0;
 //    vb.right = p.x();
 //    vb.top = p.y();
 
@@ -156,7 +161,6 @@ void drawBox(Vector3d& maxP, Vector3d& minP) {
 }
 
 void drawSkeleton2() {
-    static unsigned currFrame = 0;
 //    Frame f;
 //    f.translation = Translation3d(0, 0, -25);
 //    for (int i = 0; i < 100; ++i) {
@@ -167,7 +171,7 @@ void drawSkeleton2() {
 //    Vector3d maxP, minP;
 //    calculateMovementBox(maxP, minP);
 
-//    myCamera->applyGlTransforms();
+    myCamera.applyGlTransforms();
     // center of movement box
     Vector3d v = (maxP + minP) / 2;
     // center minus one end gives half dist in z
@@ -194,10 +198,10 @@ void drawSkeleton2() {
 //    drawBox(data.motion.maxP, data.motion.minP);
 //
 //    cout << "Movement box: \n" << maxP << minP;
-    pose(data.skeleton, data.motion.frames[currFrame++]);
+    currFrame = currFrame % data.motion.frames.size();
+    pose(data.skeleton, data.motion.frames[currFrame]);
 //    pose(data.skeleton, data.motion.frames[0]);
 
-    currFrame = currFrame % data.motion.frames.size();
 }
 
 
