@@ -29,3 +29,8 @@
 
 # IDE
 .idea/
+
+# Other files
+*.obj
+*.bvh
+*.html

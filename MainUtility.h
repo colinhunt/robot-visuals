@@ -12,14 +12,14 @@
 
 #include "Camera.h"
 
-static struct Vb {
+extern struct Vb {
     double left;
     double right;
     double bottom;
     double top;
     double near;
     double far;
-} vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
+} vb;
 
 // Globals.
 extern Camera myCamera;

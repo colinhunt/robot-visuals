@@ -30,6 +30,10 @@ void placeCamera();
 void translateAndDraw(GlTransformable &obj, double x, double y, double z);
 void rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis);
 
+// Globals
+Vb vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
+Camera myCamera;
+
 TimeVal frameTime = 0.008333;
 FrameTimer timer(frameTime);
 bool animateOn = false;
