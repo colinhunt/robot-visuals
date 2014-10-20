@@ -17,6 +17,7 @@
 #include "GlTransformable.h"
 #include "openglincludes.h"
 #include "Skeleton.h"
+#include "FrameTimer.h"
 
 using namespace std;
 using namespace Eigen;
@@ -28,6 +29,10 @@ void (*drawModel)(void);
 void placeCamera();
 void translateAndDraw(GlTransformable* obj, double x, double y, double z);
 void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis);
+
+TimeVal frameTime = 0.008333;
+FrameTimer timer(frameTime);
+bool animateOn = false;
 
 void setVb(Vb newVb) {
     vb = newVb;
@@ -50,6 +55,13 @@ void drawScene(void) {
     drawModel();
     
     glutSwapBuffers();
+}
+
+void animate() {
+    if (animateOn && timer.TimeLeft() <= 0) {
+        glutPostRedisplay();
+        timer.Start();
+    }
 }
 
 
@@ -129,7 +141,22 @@ void keyInput(unsigned char key, int x, int y) {
             rotateAndDraw(myCamera, 10, Vector3d::UnitZ());
             break;
         case 'p':
-            drawScene();
+            animateOn = true;
+            break;
+        case 'P':
+            animateOn = false;
+            break;
+        case '-':
+            frameTime = 1 / (1 / frameTime - 10);
+            cout << "Framerate: " << 1 / frameTime << endl;
+            timer.Set(frameTime);
+            timer.Start();
+            break;
+        case '+':
+            frameTime = 1 / (1 / frameTime + 10);
+            cout << "Framerate: " << 1 / frameTime << endl;
+            timer.Set(frameTime);
+            timer.Start();
             break;
         default:
             break;
@@ -200,8 +227,9 @@ void prepareAndStartMainLoop() {
     glutReshapeFunc(resize);
     glutKeyboardFunc(keyInput);
     glutSpecialFunc(specialKeyInput);
-    
+    glutIdleFunc(animate);
 //    setup();
-    
+
+    timer.Start();
     glutMainLoop();    
 }

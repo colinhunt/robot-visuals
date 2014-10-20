@@ -96,8 +96,8 @@ void pose(Skeleton& skeleton, const Frame& frame) {
 }
 
 void poseJoints(Joint& joint, vector<Quaterniond> const& rotations) {
-    cout << "Posing joint " << joint.name << " " << joint.id << endl;
-    cout << "children: " << joint.children.size() << endl;
+//    cout << "Posing joint " << joint.name << " " << joint.id << endl;
+//    cout << "children: " << joint.children.size() << endl;
     if (joint.id == -1)
         return;
 
@@ -182,8 +182,8 @@ void drawSkeleton2() {
 
     drawBox(maxP, minP);
 
-    cout << "Skel box: \n" << data.skeleton.maxP << endl << data.skeleton.minP << endl;
-    cout << "Motion box: \n" << data.motion.maxP << endl << data.motion.minP << endl;
+//    cout << "Skel box: \n" << data.skeleton.maxP << endl << data.skeleton.minP << endl;
+//    cout << "Motion box: \n" << data.motion.maxP << endl << data.motion.minP << endl;
 
 
 //    Vector3d maxP, minP;
@@ -193,7 +193,7 @@ void drawSkeleton2() {
 //    drawBox(maxP, minP);
 //    drawBox(data.motion.maxP, data.motion.minP);
 //
-    cout << "Movement box: \n" << maxP << minP;
+//    cout << "Movement box: \n" << maxP << minP;
     pose(data.skeleton, data.motion.frames[currFrame++]);
 //    pose(data.skeleton, data.motion.frames[0]);
 
