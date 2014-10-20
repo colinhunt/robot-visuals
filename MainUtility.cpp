@@ -15,24 +15,13 @@
 #include <Eigen/Geometry>
 
 #include "GlTransformable.h"
-#include "Camera.h"
 #include "openglincludes.h"
 #include "Skeleton.h"
 
 using namespace std;
 using namespace Eigen;
 
-// Globals.
-static Camera* myCamera = new Camera();
 
-struct Vb {
-    double left;
-    double right;
-    double bottom;
-    double top;
-    double near;
-    double far;
-} vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
 
 void (*drawModel)(void);
 
@@ -40,6 +29,9 @@ void placeCamera();
 void translateAndDraw(GlTransformable* obj, double x, double y, double z);
 void rotateAndDraw(GlTransformable* obj, double angle, Vector3d axis);
 
+void setVb(Vb newVb) {
+    vb = newVb;
+}
 
 // Drawing routine.
 void drawScene(void) {
@@ -54,7 +46,6 @@ void drawScene(void) {
 
     glColor3f(0.0, 0.0, 0.0);
     
-    myCamera->applyGlTransforms();
 
     drawModel();
     

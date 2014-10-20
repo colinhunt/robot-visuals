@@ -10,7 +10,7 @@
 class BvhParser {
 
 public:
-    BvhParser(ifstream& myfile, BvhData& data) : myfile(myfile), data(data) {
+    BvhParser(ifstream &myfile, BvhData &data) : myfile(myfile), data(data) {
 
     }
 
@@ -34,15 +34,17 @@ public:
 
         parseHierarchy(data.skeleton.root, data.motion.rotationsPerFrame);
         parseMotion();
+        calculateSkelBox(data.skeleton.root);
     }
 
 private:
-    void verifyLine(ifstream& myfile, string& line, string text) {
+    void verifyLine(ifstream &myfile, string &line, string text) {
         getline(myfile, line);
         if (line.substr(0, text.length()) != text) {
             exitWithBadBvh();
         }
     }
+
     void exitWithBadBvh() {
         cerr << "Bad bvh file" << endl;
         exit(EXIT_FAILURE);
@@ -81,20 +83,30 @@ private:
             f.translation = getTranslation(0, n1)
                     * getTranslation(1, n2)
                     * getTranslation(2, n3);
+            GltUtil::setMax(data.motion.maxP, f.translation.vector());
+            GltUtil::setMin(data.motion.minP, f.translation.vector());
+            cout << "min so far: " << data.motion.minP << endl;
             for (int i = 0; i < data.motion.rotationsPerFrame; ++i) {
                 int fi = (i + 1) * 3;
                 lineStream >> n1 >> n2 >> n3;
                 Quaterniond q;
                 q = getQuaternion(fi, n1)
-                        * getQuaternion(fi+1, n2)
-                        * getQuaternion(fi+2, n3);
+                        * getQuaternion(fi + 1, n2)
+                        * getQuaternion(fi + 2, n3);
                 f.rotations.push_back(q);
             }
             data.motion.frames.push_back(f);
         }
     }
 
-    void parseHierarchy(Joint &joint, int& id) {
+    void addChild(Joint& child, Joint& parent, int& id) {
+        cout << "Adding child... " << child.name << endl;
+        parseHierarchy(child, id);
+        parent.children.push_back(child);
+    }
+
+
+    void parseHierarchy(Joint &joint, int &id) {
         string line;
         while (getline(myfile, line)) {
             string token;
@@ -105,15 +117,11 @@ private:
             if (token == "JOINT") {
                 child.id = id++;
                 lineStream >> child.name;
-                cout << "Adding child... " << child.name << endl;
-                parseHierarchy(child, id);
-                joint.children.push_back(child);
+                addChild(child, joint, id);
             } else if (token == "End") {
                 child.id = -1;
                 child.name = "End Site";
-                cout << "Adding child... " << child.name << endl;
-                parseHierarchy(child, id);
-                joint.children.push_back(child);
+                addChild(child, joint, id);
             } else if (token == "OFFSET") {
                 double x, y, z;
                 lineStream >> x >> y >> z;
@@ -138,9 +146,21 @@ private:
         }
     }
 
+    void calculateSkelBox(Joint& joint) {
+        for (int i = 0; i < joint.children.size(); ++i) {
+            Joint& child = joint.children[i];
+            child.absPosition += joint.absPosition + child.offset;
+            cout << "Child abs: \n" << child.absPosition << endl;
+            cout << "= Parent abs: \n" << joint.absPosition << endl;
+            cout << "+ Child offset: \n" << child.offset << endl;
+            GltUtil::setMax(data.skeleton.maxP, child.absPosition);
+            GltUtil::setMin(data.skeleton.minP, child.absPosition);
+            calculateSkelBox(child);
+        }
+    }
 
-    BvhData& data;
-    ifstream& myfile;
+    BvhData &data;
+    ifstream &myfile;
 };
 
 
@@ -158,6 +178,8 @@ void parseBvhFile(char* fileName, BvhData &data) {
             cout << q.w() << q.x() << q.y() << q.z() << ":";
         }
         cout << endl;
+        cout << "Motion max point: " << data.motion.maxP << endl;
+        cout << "Motion min point: " << data.motion.minP << endl;
     } else {
         if (myfile.fail())
             cout << "Logical error" << endl;

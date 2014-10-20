@@ -10,6 +10,21 @@
 #ifndef MAIN_UTILITY_H
 #define MAIN_UTILITY_H
 
+#include "Camera.h"
+
+static struct Vb {
+    double left;
+    double right;
+    double bottom;
+    double top;
+    double near;
+    double far;
+} vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
+
+// Globals.
+static Camera* myCamera = new Camera();
+
+
 void resize(int w, int h);
 
 void keyInput(unsigned char key, int x, int y);
@@ -37,5 +52,7 @@ void drawModelDisplayList();
 void drawSkeleton();
 
 void setDrawingFunc(void (*func)(void));
+
+void setVb(Vb);
 
 #endif // MAIN_UTILITY_H
