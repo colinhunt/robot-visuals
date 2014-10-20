@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(modelviewer)
 
-set(SOURCE_FILES MainUtility.h MainUtility.cpp Camera.cpp Camera.h GlTransformable.cpp GlTransformable.h Skeleton.h Skeleton.cpp BvhParser.h BvhParser.cpp FrameTimer.h)
+set(SOURCE_FILES MainUtility.h MainUtility.cpp MotionViewer.h Camera.cpp Camera.h GlTransformable.cpp GlTransformable.h Skeleton.h Skeleton.cpp BvhParser.h BvhParser.cpp FrameTimer.h)
 
 add_executable(motionviewer motionviewer.cpp ${SOURCE_FILES})
 

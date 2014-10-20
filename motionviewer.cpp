@@ -6,6 +6,7 @@
  *  Copyright 2014 Hunt Enterprises. All rights reserved.
  *
  */
+#include "MotionViewer.h"
 
 #include "MainUtility.h"
 #include "Skeleton.h"
@@ -13,20 +14,6 @@
 
 #include <iostream>
 
-void drawSkeleton();
-void poseJoints(Joint& joint, vector<Quaterniond> const& rotations);
-void pose(Skeleton& skeleton, const Frame& frame);
-void calculateMovementBox(Vector3d& maxP, Vector3d& minP);
-
-void drawBox(Vector3d& maxP, Vector3d& minP) ;
-
-// Globals
-unsigned currFrame = 0;
-
-BvhData data;
-
-Vector3d maxP, minP;
-double scale = 1;
 
 // Main routine.
 int main(int argc, char **argv) {
@@ -35,16 +22,18 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    parseBvhFile(argv[1], data);
+    MotionViewer mViewer;
 
-    calculateMovementBox(maxP, minP);
+    parseBvhFile(argv[1], mViewer.data);
 
-    Vector3d span = maxP - minP;
+    mViewer.calculateMovementBox(mViewer.maxP, mViewer.minP);
+
+    Vector3d span = mViewer.maxP - mViewer.minP;
     cout << "Span: " << span << endl;
 
     // calculate scale required to resize movement box to fit inside frustum
-    double viewWidth = abs(vb.right) + abs(vb.left);
-    double viewHeight = abs(vb.top) + abs(vb.bottom);
+    double viewWidth = abs(mViewer.vb.right) + abs(mViewer.vb.left);
+    double viewHeight = abs(mViewer.vb.top) + abs(mViewer.vb.bottom);
     double scale1 = 1, scale2 = 2;
     if (span.x() > viewWidth) {
         scale1 *= viewWidth / span.x();
@@ -53,18 +42,16 @@ int main(int argc, char **argv) {
         scale2 *= viewHeight / span.y();
     }
 
-    scale = min(scale1, scale2);
+    mViewer.scale = min(scale1, scale2);
 
-    initializeGlutGlewModel(&argc, argv);
+    mViewer.initializeGlutGlewModel(&argc, argv);
 
-    setDrawingFunc(drawSkeleton);
-    
-    prepareAndStartMainLoop();
+    mViewer.prepareAndStartMainLoop();
     
     return 0;
 }
 
-void drawSkeleton() {
+void MotionViewer::drawModel() {
 
     myCamera.applyGlTransforms();
     // center of movement box
@@ -85,7 +72,7 @@ void drawSkeleton() {
     pose(data.skeleton, data.motion.frames[currFrame]);
 }
 
-void pose(Skeleton& skeleton, const Frame& frame) {
+void MotionViewer::pose(Skeleton& skeleton, const Frame& frame) {
     const Translation3d& translation = frame.translation;
     const vector<Quaterniond>& rotations = frame.rotations;
     glTranslated(translation.x(), translation.y(), translation.z());
@@ -93,7 +80,7 @@ void pose(Skeleton& skeleton, const Frame& frame) {
     poseJoints(skeleton.root, rotations);
 }
 
-void poseJoints(Joint& joint, vector<Quaterniond> const& rotations) {
+void MotionViewer::poseJoints(Joint& joint, vector<Quaterniond> const& rotations) {
 //    cout << "Posing joint " << joint.name << " " << joint.id << endl;
 //    cout << "children: " << joint.children.size() << endl;
     if (joint.id == -1)
@@ -112,12 +99,12 @@ void poseJoints(Joint& joint, vector<Quaterniond> const& rotations) {
     glPopMatrix();
 }
 
-void calculateMovementBox(Vector3d& maxP, Vector3d& minP) {
+void MotionViewer::calculateMovementBox(Vector3d& maxP, Vector3d& minP) {
     maxP = data.motion.maxP + data.skeleton.maxP;
     minP = data.motion.minP + data.skeleton.minP;
 }
 
-void drawBox(Vector3d& maxP, Vector3d& minP) {
+void MotionViewer::drawBox(Vector3d& maxP, Vector3d& minP) {
     glBegin(GL_POLYGON);
     glVertex3d(maxP[0], maxP[1], maxP[2]);
     glVertex3d(maxP[0], minP[1], maxP[2]);
@@ -142,4 +129,9 @@ void drawBox(Vector3d& maxP, Vector3d& minP) {
     glVertex3d(minP[0], maxP[1], maxP[2]);
     glVertex3d(minP[0], maxP[1], minP[2]);
     glEnd();
+}
+
+MotionViewer::MotionViewer() : scale(1) {
+    scale = 1;
+
 }

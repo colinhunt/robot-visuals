@@ -11,48 +11,50 @@
 #define MAIN_UTILITY_H
 
 #include "Camera.h"
+#include "FrameTimer.h"
 
-extern struct Vb {
-    double left;
-    double right;
-    double bottom;
-    double top;
-    double near;
-    double far;
-} vb;
+class GlViewer {
+public:
+    static struct Vb {
+        double left;
+        double right;
+        double bottom;
+        double top;
+        double near;
+        double far;
+    } vb;
 
-// Globals.
-extern Camera myCamera;
-extern unsigned currFrame;
+    static Camera myCamera;
+    static unsigned currFrame;
+    static TimeVal frameTime;
+    static FrameTimer timer;
+    static bool animateOn;
 
-void resize(int w, int h);
+    GlViewer();
+    static void resize(int w, int h);
 
-void keyInput(unsigned char key, int x, int y);
+    static void keyInput(unsigned char key, int x, int y);
 
-void specialKeyInput(int key, int x, int y);
+    static void specialKeyInput(int key, int x, int y);
 
-void prepareAndStartMainLoop();
-    
-void initializeGlutGlewModel(int* argc, char **argv);
+    void prepareAndStartMainLoop();
 
-void loadDataIntoVAO();
+    void initializeGlutGlewModel(int* argc, char** argv);
 
-void loadDataIntoVBO();
+    static void resetAndDraw();
 
-void loadDataIntoVertexPointer();
-    
-void loadDataIntoVertexAttribPointer();
-    
-void loadDataIntoVertexArray();
-    
-void drawModelVBO();
+    virtual static void drawModel() = 0;
+    static void drawScene(void);
+    void placeCamera();
 
-void drawModelDisplayList();
+    void animate();
+    void setup(void);
 
-void drawSkeleton();
+    void setVb(Vb);
 
-void setDrawingFunc(void (*func)(void));
+    static void translateAndDraw(GlTransformable &obj, double x, double y, double z);
+    static void rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis);
+    void printInteraction(void);
 
-void setVb(Vb);
-
+};
 #endif // MAIN_UTILITY_H

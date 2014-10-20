@@ -17,33 +17,24 @@
 #include "GlTransformable.h"
 #include "openglincludes.h"
 #include "Skeleton.h"
-#include "FrameTimer.h"
 
 using namespace std;
 using namespace Eigen;
 
 
+GlViewer::GlViewer() {
+    frameTime = 0.008333;
+    timer = frameTime;
+    animateOn = false;
+    vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
+}
 
-void (*drawModel)(void);
-
-void placeCamera();
-void translateAndDraw(GlTransformable &obj, double x, double y, double z);
-void rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis);
-
-// Globals
-Vb vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
-Camera myCamera;
-
-TimeVal frameTime = 0.008333;
-FrameTimer timer(frameTime);
-bool animateOn = false;
-
-void setVb(Vb newVb) {
+void GlViewer::setVb(Vb newVb) {
     vb = newVb;
 }
 
 // Drawing routine.
-void drawScene(void) {
+void GlViewer::drawScene(void) {
     placeCamera();
     
     glMatrixMode(GL_MODELVIEW);
@@ -54,14 +45,13 @@ void drawScene(void) {
     glLoadIdentity(); // Load the Identity Matrix to reset our drawing locations
 
     glColor3f(0.0, 0.0, 0.0);
-    
 
     drawModel();
     
     glutSwapBuffers();
 }
 
-void animate() {
+void GlViewer::animate() {
     if (animateOn && timer.TimeLeft() <= 0) {
         glutPostRedisplay();
         timer.Start();
@@ -70,11 +60,7 @@ void animate() {
 }
 
 
-void setDrawingFunc(void (*drawFunc)(void)) {
-    drawModel = drawFunc;
-}
-
-void placeCamera() {
+void GlViewer::placeCamera() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(vb.left, vb.right, vb.bottom, vb.top, vb.near, vb.far);
@@ -82,23 +68,23 @@ void placeCamera() {
 
 
 // Initialization routine.
-void setup(void) {
+void GlViewer::setup(void) {
     glClearColor(1.0, 1.0, 1.0, 0.0);
 }
 
 // OpenGL window reshape routine.
-void resize(int w, int h) {
+void GlViewer::resize(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
-void resetAndDraw() {
+void GlViewer::resetAndDraw() {
     myCamera.reset();
     setup();
     drawScene();
 }
 
 // Keyboard input processing routine.
-void keyInput(unsigned char key, int x, int y) {
+void GlViewer::keyInput(unsigned char key, int x, int y) {
     switch (key) {
         case 27:
             exit(0);
@@ -168,25 +154,25 @@ void keyInput(unsigned char key, int x, int y) {
     }
 }
 
-void specialKeyInput(int key, int x, int y) {
+void GlViewer::specialKeyInput(int key, int x, int y) {
     switch (key) {
         default:
             break;
     }
 }
 
-void translateAndDraw(GlTransformable &obj, double x, double y, double z) {
+void GlViewer::translateAndDraw(GlTransformable &obj, double x, double y, double z) {
     obj.translateBy(Vector3d(x,y,z));
     drawScene();
 }
 
-void rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis) {
+void GlViewer::rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis) {
     obj.rotateByAngleAxis(angle, axis);
     drawScene();
 }
 
 // Routine to output interaction instructions to the C++ window.
-void printInteraction(void) {
+void GlViewer::printInteraction(void) {
     cout << "Interaction:" << endl;
     cout << "Press 'q' to quit" << endl;
     cout << "Press 'w' to save the model to disk" << endl;
@@ -205,7 +191,7 @@ void printInteraction(void) {
     cout << "Press 'x' to reset model and camera position" << endl;
 }
 
-void initializeGlutGlewModel(int* argc, char **argv) {
+void GlViewer::initializeGlutGlewModel(int* argc, char **argv) {
     printInteraction();
     glutInit(argc, argv);
     
@@ -224,7 +210,7 @@ void initializeGlutGlewModel(int* argc, char **argv) {
     glEnableClientState(GL_VERTEX_ARRAY);
 }
 
-void prepareAndStartMainLoop() {
+void GlViewer::prepareAndStartMainLoop() {
     
     glClearColor(1.0, 1.0, 1.0, 0.0);
     
@@ -233,7 +219,7 @@ void prepareAndStartMainLoop() {
     glutKeyboardFunc(keyInput);
     glutSpecialFunc(specialKeyInput);
     glutIdleFunc(animate);
-//    setup();
+    setup();
 
     timer.Start();
     glutMainLoop();    
