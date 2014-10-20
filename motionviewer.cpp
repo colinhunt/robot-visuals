@@ -22,7 +22,7 @@ void calculateMovementBox(Vector3d& maxP, Vector3d& minP);
 BvhData data;
 
 Vector3d maxP, minP;
-
+double scale = 1;
 
 // Main routine.
 int main(int argc, char **argv) {
@@ -35,14 +35,17 @@ int main(int argc, char **argv) {
 
     calculateMovementBox(maxP, minP);
 
+    Vb vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
+
+    Vector3d span = maxP - minP;
+    cout << "Span: " << span << endl;
     // center of movement box
     Vector3d v = (maxP + minP) / 2;
     // center of closest side plus offset
-    v[2] = maxP.z() + 20;
+    v[2] = maxP.z();
 
     // move the camera to the front of the box
-    myCamera->translateBy(v);
-    myCamera->translateBy(Vector3d(0,0,0));
+//    myCamera->translateBy(v);
 
     // calculate the dimensions of the box from the origin
     Vector3d p, q;
@@ -52,17 +55,28 @@ int main(int argc, char **argv) {
     cout << "p " << p << endl;
     cout << "q " << q << endl;
 
-    Vb vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
+    double viewWidth = abs(vb.right) + abs(vb.left);
+    double viewHeight = abs(vb.top) + abs(vb.bottom);
+    double scale1 = 1, scale2 = 2;
+    if (span.x() > viewWidth) {
+        scale1 *= viewWidth / span.x();
+    }
+    if (span.y() > viewHeight) {
+        scale2 *= viewHeight / span.y();
+    }
+
+    scale = min(scale1, scale2);
 
 //    vb.right = p.x();
 //    vb.top = p.y();
 
 //    vb.left = q.x();
 //    vb.bottom = q.y();
-    // set the far plane to contain the box plus offset
-    vb.far = -q.z() + 5;
 
-    setVb(vb);
+    // set the far plane to contain the box plus offset
+//    vb.far = -q.z() + 5;
+//
+//    setVb(vb);
 
     initializeGlutGlewModel(&argc, argv);
     
@@ -140,6 +154,7 @@ void drawBox(Vector3d& maxP, Vector3d& minP) {
     glVertex3d(minP[0], maxP[1], minP[2]);
     glEnd();
 }
+
 void drawSkeleton2() {
     static unsigned currFrame = 0;
 //    Frame f;
@@ -152,7 +167,18 @@ void drawSkeleton2() {
 //    Vector3d maxP, minP;
 //    calculateMovementBox(maxP, minP);
 
-    myCamera->applyGlTransforms();
+//    myCamera->applyGlTransforms();
+    // center of movement box
+    Vector3d v = (maxP + minP) / 2;
+    // center minus one end gives half dist in z
+    double dist = abs(v.z() - maxP.z());
+    // translate back half the movement box z length plus our vb near (scaled)
+    glTranslated(0, 0, -(vb.near + (dist * scale)));
+//    glTranslated(0, 0, -maxP.z() * scale);
+    // scale it all down to fit in the frustum
+    glScaled(scale, scale, scale);
+    // translate to origin for scaling
+    glTranslated(-v.x(), -v.y(), -v.z());
 
     drawBox(maxP, minP);
 
@@ -167,7 +193,7 @@ void drawSkeleton2() {
 //    drawBox(maxP, minP);
 //    drawBox(data.motion.maxP, data.motion.minP);
 //
-//    cout << "Movement box: \n" << maxP << minP;
+    cout << "Movement box: \n" << maxP << minP;
     pose(data.skeleton, data.motion.frames[currFrame++]);
 //    pose(data.skeleton, data.motion.frames[0]);
 

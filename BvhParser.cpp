@@ -35,6 +35,11 @@ public:
         parseHierarchy(data.skeleton.root, data.motion.rotationsPerFrame);
         parseMotion();
         calculateSkelBox(data.skeleton.root);
+        // make it a proper cube to capture skeleton range of motion inside
+        // l, w, h of box
+        Vector3d span = data.skeleton.maxP - data.skeleton.minP;
+        data.skeleton.maxP[2] = span.x() / 2;
+        data.skeleton.minP[2] = -(span.x() / 2);
     }
 
 private:
