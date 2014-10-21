@@ -10,6 +10,7 @@
 #include "MainUtility.h"
 #include "Skeleton.h"
 #include "BvhParser.h"
+#include "FrameTimer.h"
 
 #include <iostream>
 
@@ -17,11 +18,16 @@ void drawSkeleton();
 void poseJoints(Joint& joint, vector<Quaterniond> const& rotations);
 void pose(Skeleton& skeleton, const Frame& frame);
 void calculateMovementBox(Vector3d& maxP, Vector3d& minP);
+void myKeyInput(unsigned char key, int x, int y);
+void animate();
 
 void drawBox(Vector3d& maxP, Vector3d& minP) ;
 
 // Globals
 unsigned currFrame = 0;
+TimeVal frameTime = 0.008333;
+FrameTimer timer(frameTime);
+bool animateOn = false;
 
 BvhData data;
 
@@ -36,6 +42,8 @@ int main(int argc, char **argv) {
     }
 
     parseBvhFile(argv[1], data);
+
+    data.motion.interpolate(10);
 
     calculateMovementBox(maxP, minP);
 
@@ -58,10 +66,49 @@ int main(int argc, char **argv) {
     initializeGlutGlewModel(&argc, argv);
 
     setDrawingFunc(drawSkeleton);
-    
+    setUserKeyInputFunc(myKeyInput);
+
+    glutIdleFunc(animate);
+    timer.Start();
+
     prepareAndStartMainLoop();
     
     return 0;
+}
+
+
+void animate() {
+    if (animateOn && timer.TimeLeft() <= 0) {
+        glutPostRedisplay();
+        timer.Start();
+        ++currFrame;
+    }
+}
+
+
+void myKeyInput(unsigned char key, int x, int y) {
+    switch (key) {
+        case 'p':
+            animateOn = true;
+            break;
+        case 'P':
+            animateOn = false;
+            break;
+        case '-':
+            frameTime = 1 / (1 / frameTime - 10);
+            cout << "Framerate: " << 1 / frameTime << endl;
+            timer.Set(frameTime);
+            timer.Start();
+            break;
+        case '+':
+            frameTime = 1 / (1 / frameTime + 10);
+            cout << "Framerate: " << 1 / frameTime << endl;
+            timer.Set(frameTime);
+            timer.Start();
+            break;
+        default:
+            break;
+    }
 }
 
 void drawSkeleton() {
@@ -75,6 +122,7 @@ void drawSkeleton() {
     glTranslated(0, 0, -(vb.near + (dist * scale)));
     // scale it all down to fit in the frustum
     glScaled(scale, scale, scale);
+//    myCamera.scaleUniform(scale);
     // translate to origin for scaling and camera positioning above
     glTranslated(-v.x(), -v.y(), -v.z());
 
@@ -86,7 +134,7 @@ void drawSkeleton() {
 }
 
 void pose(Skeleton& skeleton, const Frame& frame) {
-    const Translation3d& translation = frame.translation;
+    const Vector3d& translation = frame.translation;
     const vector<Quaterniond>& rotations = frame.rotations;
     glTranslated(translation.x(), translation.y(), translation.z());
 

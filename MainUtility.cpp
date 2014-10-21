@@ -9,22 +9,12 @@
 
 #include "MainUtility.h"
 
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <Eigen/Geometry>
-
-#include "GlTransformable.h"
-#include "openglincludes.h"
-#include "Skeleton.h"
-#include "FrameTimer.h"
-
 using namespace std;
-using namespace Eigen;
-
 
 
 void (*drawModel)(void);
+void (*userKeyInput)(unsigned char key, int x, int y);
+void (*printUserInteraction)(void);
 
 void placeCamera();
 void translateAndDraw(GlTransformable &obj, double x, double y, double z);
@@ -34,9 +24,6 @@ void rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis);
 Vb vb = {-1.0, 1.0, -1.0, 1.0, 1, 100};
 Camera myCamera;
 
-TimeVal frameTime = 0.008333;
-FrameTimer timer(frameTime);
-bool animateOn = false;
 
 void setVb(Vb newVb) {
     vb = newVb;
@@ -55,23 +42,24 @@ void drawScene(void) {
 
     glColor3f(0.0, 0.0, 0.0);
     
-
-    drawModel();
+    if (drawModel)
+        drawModel();
     
     glutSwapBuffers();
-}
-
-void animate() {
-    if (animateOn && timer.TimeLeft() <= 0) {
-        glutPostRedisplay();
-        timer.Start();
-        ++currFrame;
-    }
 }
 
 
 void setDrawingFunc(void (*drawFunc)(void)) {
     drawModel = drawFunc;
+}
+
+
+void setUserKeyInputFunc(void (*userKeyInputFunc)(unsigned char key, int x, int y)) {
+    userKeyInput = userKeyInputFunc;
+}
+
+void setPrintUserInteractionFunc(void (*printUserInteractionFunc)(void)) {
+    printUserInteraction = printUserInteractionFunc;
 }
 
 void placeCamera() {
@@ -145,27 +133,11 @@ void keyInput(unsigned char key, int x, int y) {
         case 'L':
             rotateAndDraw(myCamera, 10, Vector3d::UnitZ());
             break;
-        case 'p':
-            animateOn = true;
-            break;
-        case 'P':
-            animateOn = false;
-            break;
-        case '-':
-            frameTime = 1 / (1 / frameTime - 10);
-            cout << "Framerate: " << 1 / frameTime << endl;
-            timer.Set(frameTime);
-            timer.Start();
-            break;
-        case '+':
-            frameTime = 1 / (1 / frameTime + 10);
-            cout << "Framerate: " << 1 / frameTime << endl;
-            timer.Set(frameTime);
-            timer.Start();
-            break;
         default:
             break;
     }
+    if (userKeyInput)
+        userKeyInput(key, x, y);
 }
 
 void specialKeyInput(int key, int x, int y) {
@@ -189,7 +161,6 @@ void rotateAndDraw(GlTransformable &obj, double angle, Vector3d axis) {
 void printInteraction(void) {
     cout << "Interaction:" << endl;
     cout << "Press 'q' to quit" << endl;
-    cout << "Press 'w' to save the model to disk" << endl;
     cout << "Press 'd' to translate the camera -0.1 x" << endl;
     cout << "Press 'D' to translate the camera 0.1 x" << endl;
     cout << "Press 'c' to translate the camera -0.1 y" << endl;
@@ -203,6 +174,8 @@ void printInteraction(void) {
     cout << "Press 'l' to roll the camera by -10 degrees" << endl;
     cout << "Press 'L' to roll the camera by 10 degrees" << endl;
     cout << "Press 'x' to reset model and camera position" << endl;
+    if (printUserInteraction)
+        printUserInteraction();
 }
 
 void initializeGlutGlewModel(int* argc, char **argv) {
@@ -232,9 +205,7 @@ void prepareAndStartMainLoop() {
     glutReshapeFunc(resize);
     glutKeyboardFunc(keyInput);
     glutSpecialFunc(specialKeyInput);
-    glutIdleFunc(animate);
 //    setup();
 
-    timer.Start();
-    glutMainLoop();    
+    glutMainLoop();
 }

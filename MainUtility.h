@@ -27,31 +27,15 @@ extern unsigned currFrame;
 
 void resize(int w, int h);
 
-void keyInput(unsigned char key, int x, int y);
-
-void specialKeyInput(int key, int x, int y);
-
 void prepareAndStartMainLoop();
     
 void initializeGlutGlewModel(int* argc, char **argv);
 
-void loadDataIntoVAO();
-
-void loadDataIntoVBO();
-
-void loadDataIntoVertexPointer();
-    
-void loadDataIntoVertexAttribPointer();
-    
-void loadDataIntoVertexArray();
-    
-void drawModelVBO();
-
-void drawModelDisplayList();
-
-void drawSkeleton();
-
 void setDrawingFunc(void (*func)(void));
+
+void setUserKeyInputFunc(void (*userKeyInputFunc)(unsigned char key, int x, int y));
+
+void setPrintUserInteractionFunc(void (*printUserInteractionFunc)(void));
 
 void setVb(Vb);
 

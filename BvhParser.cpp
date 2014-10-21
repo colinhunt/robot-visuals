@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <sys/errno.h>
+#include <Python/Python.h>
 
 
 class BvhParser {
@@ -55,7 +56,7 @@ private:
         exit(EXIT_FAILURE);
     }
 
-    Translation3d getTranslation(int i, double n);
+    Vector3d getTranslation(int i, double n);
 
     AngleAxisd getQuaternion(int i, double n);
 
@@ -86,10 +87,10 @@ private:
             double n1, n2, n3;
             lineStream >> n1 >> n2 >> n3;
             f.translation = getTranslation(0, n1)
-                    * getTranslation(1, n2)
-                    * getTranslation(2, n3);
-            GltUtil::setMax(data.motion.maxP, f.translation.vector());
-            GltUtil::setMin(data.motion.minP, f.translation.vector());
+                    + getTranslation(1, n2)
+                    + getTranslation(2, n3);
+            GltUtil::setMax(data.motion.maxP, f.translation);
+            GltUtil::setMin(data.motion.minP, f.translation);
             cout << "min so far: " << data.motion.minP << endl;
             for (int i = 0; i < data.motion.rotationsPerFrame; ++i) {
                 int fi = (i + 1) * 3;
@@ -196,13 +197,13 @@ void parseBvhFile(char* fileName, BvhData &data) {
     }
 }
 
-Translation3d BvhParser::getTranslation(int i, double n) {
+Vector3d BvhParser::getTranslation(int i, double n) {
     if (data.motion.channels[i] == "Xposition")
-        return Translation3d(n, 0, 0);
+        return Vector3d(n, 0, 0);
     if (data.motion.channels[i] == "Yposition")
-        return Translation3d(0, n, 0);
+        return Vector3d(0, n, 0);
     if (data.motion.channels[i] == "Zposition")
-        return Translation3d(0, 0, n);
+        return Vector3d(0, 0, n);
 
     cerr << "Unrecognized translation\n";
     exit(EXIT_FAILURE);
@@ -219,4 +220,32 @@ AngleAxisd BvhParser::getQuaternion(int i, double n) {
 
     cerr << "Unrecognized rotation\n";
     exit(EXIT_FAILURE);
+}
+
+void Motion::interpolate(int fps) {
+    int originalFps = (int) round(1 / frameTime);
+    int framesPerOrig = originalFps / fps;
+    // interpolate
+    for (int i = 0; i < frames.size(); ++i) {
+        interpolatedFrames.push_back(frames[i]);
+        for (int j = 1; j < framesPerOrig; ++j) {
+            interpolatedFrames.push_back(
+                    interpolate(
+                            frames[i],
+                            frames[(i + 1) % frames.size()],
+                            (double) j / framesPerOrig
+                    ));
+        }
+    }
+}
+
+Frame Motion::interpolate(Frame const &frame1, Frame const &frame2, double lambda) {
+    Frame iframe;
+    Vector3d oneMinusLambdaT1 = Scaling(1 - lambda) * frame1.translation;
+    Vector3d lambdaT2 = Scaling(lambda) * frame2.translation;
+    iframe.translation = oneMinusLambdaT1 + lambdaT2;
+    for (int i = 0; i < frame1.rotations.size(); ++i) {
+        iframe.rotations.push_back(frame1.rotations[i].slerp(lambda, frame2.rotations[i]));
+    }
+    return iframe;
 }

@@ -7,7 +7,7 @@
 
 
 struct Frame {
-    Translation3d translation;
+    Vector3d translation;
     vector<Quaterniond> rotations;
 };
 
@@ -18,7 +18,12 @@ struct Motion {
     double frameTime;
     vector<string> channels;
     vector<Frame> frames;
+    vector<Frame> interpolatedFrames;
     Vector3d maxP, minP;
+
+    void interpolate(int fps);
+
+    Frame interpolate(Frame const &frame1, Frame const &frame2, double lambda);
 };
 
 struct BvhData {
