@@ -223,10 +223,13 @@ AngleAxisd BvhParser::getQuaternion(int i, double n) {
 }
 
 void Motion::interpolate(int fps) {
+    this->fps = fps;
     int originalFps = (int) round(1 / frameTime);
+    cout << "originalFps " << originalFps << endl;
     int framesPerOrig = originalFps / fps;
+    cout << "framesPerOrig " << framesPerOrig << endl;
     // interpolate
-    for (int i = 0; i < frames.size(); ++i) {
+    for (int i = 1; i < frames.size() - 1; ++i) {
         interpolatedFrames.push_back(frames[i]);
         for (int j = 1; j < framesPerOrig; ++j) {
             interpolatedFrames.push_back(
@@ -237,6 +240,8 @@ void Motion::interpolate(int fps) {
                     ));
         }
     }
+    cout << "oFrames.size() " << frames.size() << endl;
+    cout << "iFrames.size() " << interpolatedFrames.size() << endl;
 }
 
 Frame Motion::interpolate(Frame const &frame1, Frame const &frame2, double lambda) {

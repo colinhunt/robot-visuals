@@ -20,19 +20,23 @@ void pose(Skeleton& skeleton, const Frame& frame);
 void calculateMovementBox(Vector3d& maxP, Vector3d& minP);
 void myKeyInput(unsigned char key, int x, int y);
 void animate();
-
+int frameStep();
 void drawBox(Vector3d& maxP, Vector3d& minP) ;
+void userReset();
 
 // Globals
-unsigned currFrame = 0;
+int currFrame = 0;
 TimeVal frameTime = 0.008333;
+const int ofps = (int) round(1.0 / frameTime);
+int fps = ofps;
 FrameTimer timer(frameTime);
 bool animateOn = false;
+Vector3d maxP, minP;
+double scale = 1;
+bool start = true;
 
 BvhData data;
 
-Vector3d maxP, minP;
-double scale = 1;
 
 // Main routine.
 int main(int argc, char **argv) {
@@ -67,6 +71,7 @@ int main(int argc, char **argv) {
 
     setDrawingFunc(drawSkeleton);
     setUserKeyInputFunc(myKeyInput);
+    setUserResetFunc(userReset);
 
     glutIdleFunc(animate);
     timer.Start();
@@ -76,39 +81,53 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+int frameStep() {
+    return fps / data.motion.fps;
+}
 
 void animate() {
     if (animateOn && timer.TimeLeft() <= 0) {
         glutPostRedisplay();
         timer.Start();
-        ++currFrame;
+        currFrame += frameStep();
     }
 }
 
+
+void userReset() {
+    start = true;
+    fps = ofps;
+    currFrame = 0;
+    animateOn = false;
+}
 
 void myKeyInput(unsigned char key, int x, int y) {
     switch (key) {
         case 'p':
             animateOn = true;
+            start = false;
+            cout << "frameStep: " << frameStep() << endl;
             break;
         case 'P':
             animateOn = false;
             break;
         case '-':
-            frameTime = 1 / (1 / frameTime - 10);
-            cout << "Framerate: " << 1 / frameTime << endl;
-            timer.Set(frameTime);
-            timer.Start();
+            fps -= 10;
+            cout << "Framerate: " << fps << endl;
+            cout << "frameStep: " << frameStep() << endl;
             break;
         case '+':
-            frameTime = 1 / (1 / frameTime + 10);
-            cout << "Framerate: " << 1 / frameTime << endl;
-            timer.Set(frameTime);
-            timer.Start();
+            fps += 10;
+            cout << "Framerate: " << fps << endl;
+            cout << "frameStep: " << frameStep() << endl;
             break;
         default:
             break;
     }
+}
+
+int mod(int a, int b) {
+    return (a%b+b)%b;
 }
 
 void drawSkeleton() {
@@ -129,8 +148,12 @@ void drawSkeleton() {
     // show the movement box
     drawBox(maxP, minP);
 
-    currFrame = currFrame % data.motion.frames.size();
-    pose(data.skeleton, data.motion.frames[currFrame]);
+    if (start) {
+        pose(data.skeleton, data.motion.frames[0]);
+    } else {
+        currFrame = mod(currFrame, data.motion.interpolatedFrames.size());
+        pose(data.skeleton, data.motion.interpolatedFrames[currFrame]);
+    }
 }
 
 void pose(Skeleton& skeleton, const Frame& frame) {

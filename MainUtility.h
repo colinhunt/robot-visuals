@@ -23,7 +23,6 @@ extern struct Vb {
 
 // Globals.
 extern Camera myCamera;
-extern unsigned currFrame;
 
 void resize(int w, int h);
 
@@ -36,6 +35,8 @@ void setDrawingFunc(void (*func)(void));
 void setUserKeyInputFunc(void (*userKeyInputFunc)(unsigned char key, int x, int y));
 
 void setPrintUserInteractionFunc(void (*printUserInteractionFunc)(void));
+
+void setUserResetFunc(void (* userResetFunc)(void));
 
 void setVb(Vb);
 

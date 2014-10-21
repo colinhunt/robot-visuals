@@ -15,6 +15,7 @@ using namespace std;
 void (*drawModel)(void);
 void (*userKeyInput)(unsigned char key, int x, int y);
 void (*printUserInteraction)(void);
+void (*userReset)(void);
 
 void placeCamera();
 void translateAndDraw(GlTransformable &obj, double x, double y, double z);
@@ -62,6 +63,12 @@ void setPrintUserInteractionFunc(void (*printUserInteractionFunc)(void)) {
     printUserInteraction = printUserInteractionFunc;
 }
 
+
+void setUserResetFunc(void (* userResetFunc)(void)) {
+    userReset = userResetFunc;
+}
+
+
 void placeCamera() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -82,7 +89,9 @@ void resize(int w, int h) {
 void resetAndDraw() {
     myCamera.reset();
     setup();
-    drawScene();
+    if (userReset)
+        userReset();
+    glutPostRedisplay();
 }
 
 // Keyboard input processing routine.
@@ -205,7 +214,7 @@ void prepareAndStartMainLoop() {
     glutReshapeFunc(resize);
     glutKeyboardFunc(keyInput);
     glutSpecialFunc(specialKeyInput);
-//    setup();
+    setup();
 
     glutMainLoop();
 }
