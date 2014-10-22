@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 void printHierarchy(ofstream &myfile, Joint &joint, string tabs);
 
@@ -226,13 +227,13 @@ void Motion::interpolate(int fps) {
     int framesPerOrig = originalFps / fps;
 //    cout << "framesPerOrig " << framesPerOrig << endl;
     // interpolate
-    for (int i = 1; i < frames.size() - 1; ++i) {
+    for (int i = 0; i < frames.size() - 1; ++i) {
         interpolatedFrames.push_back(frames[i]);
         for (int j = 1; j < framesPerOrig; ++j) {
             interpolatedFrames.push_back(
                     interpolate(
                             frames[i],
-                            frames[(i + 1) % frames.size()],
+                            frames[i + 1],
                             (double) j / framesPerOrig
                     ));
         }
