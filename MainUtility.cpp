@@ -9,6 +9,8 @@
 
 #include "MainUtility.h"
 
+#include <iostream>
+
 using namespace std;
 
 
@@ -188,7 +190,6 @@ void printInteraction(void) {
 }
 
 void initializeGlutGlewModel(int* argc, char **argv) {
-    printInteraction();
     glutInit(argc, argv);
     
     glutInitContextVersion(4, 2);
@@ -207,7 +208,8 @@ void initializeGlutGlewModel(int* argc, char **argv) {
 }
 
 void prepareAndStartMainLoop() {
-    
+    printInteraction();
+
     glClearColor(1.0, 1.0, 1.0, 0.0);
     
     glutDisplayFunc(drawScene);

@@ -26,6 +26,7 @@
 *.exe
 *.out
 *.app
+motionviewer
 
 # IDE
 .idea/
@@ -34,3 +35,4 @@
 *.obj
 *.bvh
 *.html
+*.zip

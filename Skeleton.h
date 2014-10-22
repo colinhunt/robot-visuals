@@ -11,8 +11,10 @@ public:
     void draw();
 
     int id;
+    string type;
     string name;
     vector<Joint> children;
+    vector<string> channels;
     Vector3d absPosition;
 };
 

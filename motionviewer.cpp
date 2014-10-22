@@ -23,6 +23,8 @@ void animate();
 int frameStep();
 void drawBox(Vector3d& maxP, Vector3d& minP) ;
 void userReset();
+void userPrintInteraction();
+
 
 // Globals
 int currFrame = 0;
@@ -47,12 +49,14 @@ int main(int argc, char **argv) {
 
     parseBvhFile(argv[1], data);
 
+    frameTime = data.motion.frameTime;
+
     data.motion.interpolate(10);
 
     calculateMovementBox(maxP, minP);
 
     Vector3d span = maxP - minP;
-    cout << "Span: " << span << endl;
+//    cout << "Span: " << span << endl;
 
     // calculate scale required to resize movement box to fit inside frustum
     double viewWidth = abs(vb.right) + abs(vb.left);
@@ -72,13 +76,17 @@ int main(int argc, char **argv) {
     setDrawingFunc(drawSkeleton);
     setUserKeyInputFunc(myKeyInput);
     setUserResetFunc(userReset);
-
+    setPrintUserInteractionFunc(userPrintInteraction);
     glutIdleFunc(animate);
     timer.Start();
 
     prepareAndStartMainLoop();
     
     return 0;
+}
+
+void userPrintInteraction() {
+    cout << "Press 'w' to save data to bvh file" << endl;
 }
 
 int frameStep() {
@@ -106,7 +114,8 @@ void myKeyInput(unsigned char key, int x, int y) {
         case 'p':
             animateOn = true;
             start = false;
-            cout << "frameStep: " << frameStep() << endl;
+            cout << "Framerate: " << fps << endl;
+//            cout << "frameStep: " << frameStep() << endl;
             break;
         case 'P':
             animateOn = false;
@@ -114,13 +123,15 @@ void myKeyInput(unsigned char key, int x, int y) {
         case '-':
             fps -= 10;
             cout << "Framerate: " << fps << endl;
-            cout << "frameStep: " << frameStep() << endl;
+//            cout << "frameStep: " << frameStep() << endl;
             break;
         case '+':
             fps += 10;
             cout << "Framerate: " << fps << endl;
-            cout << "frameStep: " << frameStep() << endl;
+//            cout << "frameStep: " << frameStep() << endl;
             break;
+        case 'w':
+            saveAsBvhFile(data);
         default:
             break;
     }
@@ -146,7 +157,7 @@ void drawSkeleton() {
     glTranslated(-v.x(), -v.y(), -v.z());
 
     // show the movement box
-    drawBox(maxP, minP);
+//    drawBox(maxP, minP);
 
     if (start) {
         pose(data.skeleton, data.motion.frames[0]);

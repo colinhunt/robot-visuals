@@ -3,26 +3,15 @@ CXXFLAGS = -I/usr/include -Wno-write-strings
 LDLIBS = -lglut -lGLEW -lGL -lGLU -lX11
 LDFLAGS = -L/usr/lib -L/usr/lib/nvidia-304-updates
 
-mainOfiles = model.o GlTransformable.o Camera.o MainUtility.o
-mainHeaders = model.h Camera.h MainUtility.h
+mainOfiles = motionviewer.o GlTransformable.o Camera.o MainUtility.o BvhParser.o Skeleton.o
+mainHeaders = MainUtility.h Skeleton.h BvhParser.h FrameTimer.h
 
 
-all: modelviewer modelviewerVBO modelviewerVAO
+all: motionviewer
 
-modelviewer: modelviewer.o $(mainOfiles)
+motionviewer: $(mainOfiles)
 
-modelviewer.o: modelviewer.cpp $(mainHeaders)
-
-modelviewerVBO: modelviewerVBO.o $(mainOfiles)
-
-modelviewerVBO.o: modelviewerVBO.cpp $(mainHeaders)
-
-modelviewerVAO: modelviewerVAO.o $(mainOfiles)
-
-modelviewerVAO.o: modelviewerVAO.cpp $(mainHeaders)
-
-
-model.o: model.cpp model.h
+motionviewer.o: motionviewer.cpp $(mainHeaders)
 
 GlTransformable.o: GlTransformable.cpp GlTransformable.h
 
@@ -30,8 +19,12 @@ Camera.o: Camera.cpp Camera.h
 
 MainUtility.o: MainUtility.cpp MainUtility.h
 
+BvhParser.o: BvhParser.cpp BvhParser.h 
+
+Skeleton.o: Skeleton.cpp Skeleton.h
+
 clean:
-	rm -rf modelviewer modelviewerVBO modelviewerVAO *.o
+	rm -rf motionviewer *.o
 	
 zip:
-	zip modelviewer.zip *.cpp *.h Makefile
+	zip motionviewer.zip *.cpp *.h Makefile

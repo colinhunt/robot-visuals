@@ -9,6 +9,7 @@
 struct Frame {
     Vector3d translation;
     vector<Quaterniond> rotations;
+    vector<double> eulers;
 };
 
 struct Motion {
@@ -31,6 +32,40 @@ struct BvhData {
     Motion motion;
 };
 
+class BvhParser {
+
+public:
+    BvhParser(ifstream &myfile, BvhData &data) : myfile(myfile), data(data) {
+
+    }
+
+    void parse();
+
+private:
+    void verifyLine(ifstream &myfile, string &line, string text);
+
+    void exitWithBadBvh();
+
+    Vector3d getTranslation(int i, double n);
+
+    AngleAxisd getQuaternion(int i, double n);
+
+    void parseMotion();
+
+    void addChild(Joint& child, Joint& parent, int& id);
+
+
+    void parseHierarchy(Joint &joint, int &id);
+
+    void calculateSkelBox(Joint& joint);
+
+    BvhData &data;
+    ifstream &myfile;
+};
+
+
 void parseBvhFile(char* filename, BvhData &data);
+
+void saveAsBvhFile(BvhData& data);
 
 #endif // BVH_PARSER_H
