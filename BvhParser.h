@@ -7,13 +7,16 @@
 
 
 struct Frame {
+    Frame(): translation(Vector3d::Zero()){}
     Vector3d translation;
     vector<Quaterniond> rotations;
     vector<double> eulers;
 };
 
 struct Motion {
-    Motion() : maxP(-GltUtil::INF, -GltUtil::INF, -GltUtil::INF), minP(GltUtil::INF, GltUtil::INF, GltUtil::INF) {}
+    Motion() :
+            maxP(-GltUtil::INF, -GltUtil::INF, -GltUtil::INF),
+            minP(GltUtil::INF, GltUtil::INF, GltUtil::INF) {}
     int numFrames;
     int rotationsPerFrame;
     double frameTime;
@@ -61,6 +64,8 @@ private:
 
     BvhData &data;
     ifstream &myfile;
+
+    void initRoot(string line);
 };
 
 

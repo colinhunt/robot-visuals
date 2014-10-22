@@ -1,17 +1,17 @@
 #include "BvhParser.h"
 
 #include <fstream>
-#include <iostream>
-
+#include <sstream>
 
 void printHierarchy(ofstream &myfile, Joint &joint, string tabs);
 
 void printMotion(ofstream &ofstream, Motion &motion);
 
 void BvhParser::calculateSkelBox(Joint& joint) {
+//    cout << "Joint name: " << joint.name << endl;
     for (int i = 0; i < joint.children.size(); ++i) {
         Joint& child = joint.children[i];
-        child.absPosition += joint.absPosition + child.offset;
+        child.absPosition = joint.absPosition + child.offset;
 //        cout << "Child abs: \n" << child.absPosition << endl;
 //        cout << "= Parent abs: \n" << joint.absPosition << endl;
 //        cout << "+ Child offset: \n" << child.offset << endl;
@@ -134,6 +134,20 @@ void BvhParser::parse() {
     verifyLine(myfile, line, "HIERARCHY");
     verifyLine(myfile, line, "ROOT");
 
+    initRoot(line);
+
+    parseHierarchy(data.skeleton.root, data.motion.rotationsPerFrame);
+    parseMotion();
+    calculateSkelBox(data.skeleton.root);
+    // make it a proper cube to capture skeleton range of motion inside
+    // l, w, h of box
+    Vector3d span = data.skeleton.maxP - data.skeleton.minP;
+    data.skeleton.maxP[2] = span.x() / 2;
+    data.skeleton.minP[2] = -(span.x() / 2);
+//    cout << "Skeleton box: " << data.skeleton.maxP << " " << data.skeleton.minP << endl;
+}
+
+void BvhParser::initRoot(string line) {
     string token;
     stringstream lineStream(line);
     lineStream >> token;
@@ -149,14 +163,6 @@ void BvhParser::parse() {
     lineStream >> data.skeleton.root.name;
 //    cout << "Skeleton name is " << data.skeleton.root.name << endl;
 
-    parseHierarchy(data.skeleton.root, data.motion.rotationsPerFrame);
-    parseMotion();
-    calculateSkelBox(data.skeleton.root);
-    // make it a proper cube to capture skeleton range of motion inside
-    // l, w, h of box
-    Vector3d span = data.skeleton.maxP - data.skeleton.minP;
-    data.skeleton.maxP[2] = span.x() / 2;
-    data.skeleton.minP[2] = -(span.x() / 2);
 }
 
 
@@ -185,6 +191,7 @@ void parseBvhFile(char* fileName, BvhData &data) {
         cerr << "Error: " << strerror(errno) << endl;
         exit(errno);
     }
+    myfile.close();
 }
 
 Vector3d BvhParser::getTranslation(int i, double n) {
