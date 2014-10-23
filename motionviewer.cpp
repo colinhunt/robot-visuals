@@ -94,10 +94,17 @@ int frameStep() {
 }
 
 void animate() {
-    if (animateOn && timer.TimeLeft() <= 0) {
+    TimeVal timeLeft = timer.TimeLeft();
+    if (animateOn && timeLeft <= 0) {
+        TimeVal delta = frameTime - timeLeft;
+        int correction = (int) round(delta / frameTime);
+//        cout << "correction " << correction << endl;
         glutPostRedisplay();
+//        cout << "frameStep: " << frameStep() * correction << endl;
+        currFrame += frameStep() * correction;
         timer.Start();
-        currFrame += frameStep();
+    } else {
+//        cout << "no display frame " << timer.TimeLeft() << endl;
     }
 }
 
@@ -145,23 +152,29 @@ void drawSkeleton() {
 
     myCamera.applyGlTransforms();
     // center of movement box
-    Vector3d v = (maxP + minP) / 2;
-    // center minus one end gives half dist in z
-    double dist = abs(v.z() - maxP.z());
-    // translate back half the movement box z length plus our vb near (scaled)
-    glTranslated(0, 0, -(vb.near + (dist * scale)));
-    // scale it all down to fit in the frustum
-    glScaled(scale, scale, scale);
-//    myCamera.scaleUniform(scale);
-    // translate to origin for scaling and camera positioning above
-    glTranslated(-v.x(), -v.y(), -v.z());
 
     // show the movement box
 //    drawBox(maxP, minP);
 
     if (start) {
-        pose(data.skeleton, data.motion.frames[0]);
+        glTranslated(0, 0, -(data.skeleton.maxP.z() * scale));
+        glScaled(scale, scale, scale);
+        Frame f;
+        f.rotations = vector<Quaterniond>(data.motion.rotationsPerFrame,
+                Quaterniond::Identity());
+        pose(data.skeleton, f);
     } else {
+        Vector3d v = (maxP + minP) / 2;
+        // center minus one end gives half dist in z
+        double dist = abs(v.z() - maxP.z());
+        // translate back half the movement box z length plus our vb near (scaled)
+        glTranslated(0, 0, -(vb.near + (dist * scale)));
+        // scale it all down to fit in the frustum
+        glScaled(scale, scale, scale);
+//    myCamera.scaleUniform(scale);
+        // translate to origin for scaling and camera positioning above
+        glTranslated(-v.x(), -v.y(), -v.z());
+
         currFrame = mod(currFrame, data.motion.interpolatedFrames.size());
         pose(data.skeleton, data.motion.interpolatedFrames[currFrame]);
     }

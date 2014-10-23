@@ -7,6 +7,8 @@
  */
 
 #include <time.h>
+#include <sys/time.h>
+#include <iostream>
 
 #ifndef FRAME_TIMER_H
 #define FRAME_TIMER_H
@@ -51,7 +53,12 @@ private:
   bool isRunning;
     
   TimeVal CurrentTime() const {
-    return static_cast<TimeVal>(clock()) / CLOCKS_PER_SEC;
+      timeval tv;
+      gettimeofday(&tv, NULL);
+      TimeVal usecs = static_cast<TimeVal>(tv.tv_usec) / 1000000;
+      TimeVal secs = static_cast<TimeVal>(tv.tv_sec);
+//      cout << "curent time: " << secs + usecs << endl;
+    return secs + usecs;
   }
 
 };
