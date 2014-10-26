@@ -33,7 +33,6 @@ public:
   }
   
   void Stop() {
-    time = TimeLeft();
     isRunning = false;
   }
   
