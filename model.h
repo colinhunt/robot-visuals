@@ -26,21 +26,17 @@ public:
 
     Vector3d calculateCenter() const;
 
-    const int* faceArray(int i);
-
-    Vertex const* vertexArray();
-
-    void draw(GLenum mode);
-
-    void setDisplayList(unsigned int displayList);
-    
     Vector3d const & translateCenterTo(Vector3d vertex);
-    
+
+    typedef vector<unsigned int> Vdata;
+    typedef vector<Vdata> Face;
+
     string name;
     float color[4];
     vector<Vertex> vertices;
-    vector< vector<int> > faces;
-    vector<int> facesFlattened;
+    vector<Vertex> normals;
+    vector<Face> faces;
+    vector<int> triangleIndices;
     unsigned int displayList;
     GLuint vbo;
     GLuint vao;
@@ -62,5 +58,11 @@ private:
     Vector3d calculateMaxVertex() const;
 
     Vector3d calculateMinVertex() const;
+
+    void normalizeCenter();
+
+    void normalizeScale();
+
+    void loadIndexArrays();
 
 };

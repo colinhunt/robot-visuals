@@ -27,5 +27,10 @@
 *.out
 *.app
 
-# IDE
+# Other
 .idea/
+*.mtl
+*.tga
+*.bmp
+*.att
+*.bvh

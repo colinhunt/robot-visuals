@@ -11,6 +11,8 @@
 #include "Camera.h"
 #include "model.h"
 
+enum shadeType {OFF, FLAT, SMOOTH, NUM_SHADE_TYPES};
+
 void setup(char*);
 void drawScene(void);
 void resize(int, int);
@@ -21,6 +23,7 @@ void printInteraction(void);
 // Globals.
 Model myModel;
 Camera myCamera;
+unsigned shading = OFF;
 
 // Main routine.
 int main(int argc, char **argv) {
@@ -47,15 +50,19 @@ int main(int argc, char **argv) {
 void setup(char* fileName)
 {
     myModel.initFromObjFile(fileName);
-    myModel.initialize(Vector3d(0, 0, -2));
+    myModel.initialize(Vector3d(0, 0, -10));
     myModel.glEnableVertexArray();
-    myCamera.initialize(Vb(-1.0, 1.0, -1.0, 1.0, 1, 100), true);
+    myCamera.initialize(Vb(-1.0, 1.0, -1.0, 1.0, 1, 100), false);
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glEnable(GL_DEPTH_TEST);
+    float Ambient[4]={0.5f,0.5f,0.5f,1.0f};
+    glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient);
 }
 
 void drawScene(void)
 {
+    glEnable(GL_LIGHT0);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glMatrixMode(GL_PROJECTION);
@@ -64,11 +71,30 @@ void drawScene(void)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+
     myCamera.applyGlTransforms(); // camera transformation
+
+    float LightPos[4]={-5.0f,5.0f,10.0f,1.0f};
+    glLightfv(GL_LIGHT0,GL_POSITION,LightPos);
+
     myModel.applyGlTransforms(); // object transformation
 
     // draw model
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (shading == OFF) {
+        glDisable(GL_LIGHTING);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+        glEnable(GL_LIGHTING);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    if (shading == FLAT) {
+        glShadeModel(GL_FLAT);
+    } else if (shading == SMOOTH) {
+        glShadeModel(GL_SMOOTH);
+    }
+
     myModel.glColor();
     myModel.glDrawVertexArray();
     glutSwapBuffers();
@@ -93,6 +119,7 @@ void keyInput(unsigned char key, int x, int y) {
         case 'x': {
             myModel.reset();
             myCamera.reset();
+            shading = OFF;
         }
             break;
         case 'v':
@@ -165,6 +192,9 @@ void keyInput(unsigned char key, int x, int y) {
             break;
         case 'L':
             myCamera.rotateByAngleAxis(10, Vector3d::UnitZ());
+            break;
+        case 's':
+            shading = (shading + 1) % NUM_SHADE_TYPES;
             break;
         default:
             break;

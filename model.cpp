@@ -20,26 +20,26 @@ Model::Model(const char* fileName) : name("nameless") {
 }
 
 void Model::saveToFile() const {
-    cout << "Saving model to output.obj" << endl;
-    ofstream myfile("output.obj");
-    if (myfile.is_open()) {
-        myfile.precision(10);
-        myfile << 'o' << ' ' << name << endl;
-        for (int i = 0; i < vertices.size(); ++i) {
-            myfile << 'v' << ' ' << vertices[i].x << ' ' << vertices[i].y << ' ' << vertices[i].z << endl;
-        }
-        for (int i = 0; i < faces.size(); ++i) {
-            myfile << 'f';
-            for (int j = 0; j < faces[i].size(); ++j) {
-                myfile << ' ' << faces[i][j] + 1;
-            }
-            myfile << endl;
-        }
-    }
-    else {
-        cerr << "Error: " << strerror(errno) << endl;
-        exit(errno);
-    }
+//    cout << "Saving model to output.obj" << endl;
+//    ofstream myfile("output.obj");
+//    if (myfile.is_open()) {
+//        myfile.precision(10);
+//        myfile << 'o' << ' ' << name << endl;
+//        for (int i = 0; i < vertices.size(); ++i) {
+//            myfile << 'v' << ' ' << vertices[i].x << ' ' << vertices[i].y << ' ' << vertices[i].z << endl;
+//        }
+//        for (int i = 0; i < faces.size(); ++i) {
+//            myfile << 'f';
+//            for (int j = 0; j < faces[i].size(); ++j) {
+//                myfile << ' ' << faces[i][j] + 1;
+//            }
+//            myfile << endl;
+//        }
+//    }
+//    else {
+//        cerr << "Error: " << strerror(errno) << endl;
+//        exit(errno);
+//    }
 }
 
 void Model::initFromObjFile(char const *fileName) {
@@ -52,26 +52,25 @@ void Model::initFromObjFile(char const *fileName) {
             lineStream >> token;
             if (token == "v") {
                 Vertex vertex;
-                lineStream >> vertex.x >> ws >> vertex.y >> ws >> vertex.z;
+                lineStream >> vertex.x >> vertex.y >> vertex.z;
                 vertices.push_back(vertex);
+            } else if (token == "vn") {
+                Vertex normal;
+                lineStream >> normal.x >> normal.y >> normal.z;
+                normals.push_back(normal);
             } else if (token == "f") {
-                int faceA[4] = {0,0,0,0};
-                vector<int> faceV;
-                lineStream >> faceA[0] >> ws >> faceA[1] >> ws >> faceA[2] >> ws >> faceA[3];
-                for (int i = 0; i < 4; ++i)
-                    if (faceA[i] != 0) {
-                        faceV.push_back(faceA[i] - 1);
-                    }
-                faces.push_back(faceV);
-                facesFlattened.push_back(faceV[0]);
-                facesFlattened.push_back(faceV[1]);
-                facesFlattened.push_back(faceV[2]);
-                // triangulate larger polygons
-                if (faceV.size() > 3) {
-                    facesFlattened.push_back(faceV[2]);
-                    facesFlattened.push_back(faceV[3]);
-                    facesFlattened.push_back(faceV[0]);
+                Face face;
+                unsigned int v, vt, vn;
+                char sep = '/';
+                while (lineStream >> v >> sep >> vt >> sep >> vn) {
+//                    cout << v << sep << vt << sep << vn << endl;
+                    Vdata vData;
+                    vData.push_back(v - 1);
+                    vData.push_back(vt - 1);
+                    vData.push_back(vn - 1);
+                    face.push_back(vData);
                 }
+                faces.push_back(face);
             } else if (token == "o") {
                 lineStream >> name;
             } else {
@@ -88,29 +87,39 @@ void Model::initFromObjFile(char const *fileName) {
         cerr << "Error: " << strerror(errno) << endl;
         exit(errno);
     }
-    normalize();
+    loadIndexArrays();
+    normalizeCenter();
     color[0] = color[1] = color[2] = 0.0;
     color[3] = 1.0;
 }
 
 void Model::normalize() {
+    normalizeCenter();
+    normalizeScale();
+}
+
+void Model::normalizeScale() {
     Vector3d pmax = calculateMaxVertex();
     Vector3d pmin = calculateMinVertex();
-    Vector3d center = calculateCenter();
-    Vector3d origin;
-    Vector3d offset = origin - center;
-
     Vector3d diagonal = pmax - pmin;
 
     double scale = max(max(diagonal.x(), diagonal.y()), diagonal.z());
     for (int i = 0; i < vertices.size(); ++i) {
-        vertices[i].x += offset.x();
-        vertices[i].y += offset.y();
-        vertices[i].z += offset.z();
-
         vertices[i].x /= scale;
         vertices[i].y /= scale;
         vertices[i].z /= scale;
+    }
+}
+
+void Model::normalizeCenter() {
+    Vector3d center = calculateCenter();
+    Vector3d origin;
+    Vector3d offset = origin - center;
+
+    for (int i = 0; i < vertices.size(); ++i) {
+        vertices[i].x += offset.x();
+        vertices[i].y += offset.y();
+        vertices[i].z += offset.z();
     }
 }
 
@@ -149,27 +158,6 @@ Vector3d Model::calculateMaxVertex() const {
 }
 
 
-int const* Model::faceArray(int i) {
-    return &faces[i][0];
-}
-
-Model::Vertex const* Model::vertexArray() {
-    return &vertices[0];
-}
-
-void Model::draw(GLenum mode) {
-    for (int i = 0; i < faces.size(); ++i) {
-        glDrawElements(mode, //mode
-                (GLsizei) faces[i].size(),  //count, ie. how many indices
-                GL_UNSIGNED_INT, //type of the index array
-                faceArray(i));
-    }
-}
-
-void Model::setDisplayList(GLuint displayList) {
-    this->displayList = displayList;
-}
-
 const Vector3d& Model::translateCenterTo(Vector3d vertex) {
     Vector3d center = calculateCenter();
     Vector3d offset = vertex - center;
@@ -180,10 +168,15 @@ const Vector3d& Model::translateCenterTo(Vector3d vertex) {
 
 void Model::glEnableVertexArray() {
     glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
     glVertexPointer(3,   //3 components per vertex (x,y,z)
             GL_DOUBLE,
-            sizeof(Model::Vertex),
-            vertexArray());
+            sizeof(vertices[0]),
+            &vertices[0]);
+    glNormalPointer(
+            GL_DOUBLE,
+            sizeof(normals[0]),
+            &normals[0]);
 }
 
 void Model::glColor() {
@@ -191,6 +184,19 @@ void Model::glColor() {
 }
 
 void Model::glDrawVertexArray() {
-    glDrawElements(GL_TRIANGLES, (GLsizei) facesFlattened.size(), GL_UNSIGNED_INT, &facesFlattened[0]);
+    glDrawElements(GL_TRIANGLES, (GLsizei) triangleIndices.size(), GL_UNSIGNED_INT, &triangleIndices[0]);
 }
 
+void Model::loadIndexArrays() {
+    for (int i = 0; i < faces.size(); ++i) {
+        triangleIndices.push_back(faces[i][0][0]);
+        triangleIndices.push_back(faces[i][1][0]);
+        triangleIndices.push_back(faces[i][2][0]);
+        // triangulate larger polygons
+        if (faces[i].size() > 3) {
+            triangleIndices.push_back(faces[i][2][0]);
+            triangleIndices.push_back(faces[i][3][0]);
+            triangleIndices.push_back(faces[i][0][0]);
+        }
+    }
+}
