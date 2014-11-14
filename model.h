@@ -6,6 +6,7 @@
 
 #include "GlTransformable.h"
 #include "openglincludes.h"
+#include "TGALoader.h"
 
 using namespace Eigen;
 using namespace std;
@@ -35,8 +36,13 @@ public:
     float color[4];
     vector<Vertex> vertices;
     vector<Vertex> normals;
+    vector<Vertex> texels;
     vector<Face> faces;
     vector<int> triangleIndices;
+
+    NS_TGALOADER::IMAGE textureImage;
+    GLuint textureId;
+
     unsigned int displayList;
     GLuint vbo;
     GLuint vao;
@@ -49,6 +55,10 @@ public:
     void glColor();
 
     void glDrawVertexArray();
+
+    void glDisableTextures();
+
+    void glEnableTextures();
 
 private:
 
@@ -64,5 +74,7 @@ private:
     void normalizeScale();
 
     void loadIndexArrays();
+
+    void loadTexture(string mtlFileName, string objFileName);
 
 };

@@ -11,7 +11,7 @@
 #include "Camera.h"
 #include "model.h"
 
-enum shadeType {OFF, FLAT, SMOOTH, NUM_SHADE_TYPES};
+enum shadeType {OFF, FLAT, SMOOTH, TEXTURE, NUM_SHADE_TYPES};
 
 void setup(char*);
 void drawScene(void);
@@ -57,6 +57,7 @@ void setup(char* fileName)
     glEnable(GL_DEPTH_TEST);
     float Ambient[4]={0.5f,0.5f,0.5f,1.0f};
     glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient);
+
 }
 
 void drawScene(void)
@@ -83,6 +84,7 @@ void drawScene(void)
     // draw model
     if (shading == OFF) {
         glDisable(GL_LIGHTING);
+        myModel.glDisableTextures();
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     } else {
         glEnable(GL_LIGHTING);
@@ -93,6 +95,8 @@ void drawScene(void)
         glShadeModel(GL_FLAT);
     } else if (shading == SMOOTH) {
         glShadeModel(GL_SMOOTH);
+    } else if (shading == TEXTURE) {
+        myModel.glEnableTextures();
     }
 
     myModel.glColor();

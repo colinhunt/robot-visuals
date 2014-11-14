@@ -58,6 +58,10 @@ void Model::initFromObjFile(char const *fileName) {
                 Vertex normal;
                 lineStream >> normal.x >> normal.y >> normal.z;
                 normals.push_back(normal);
+            } else if (token == "vt") {
+                Vertex texel;
+                lineStream >> texel.x >> texel.y >> texel.z;
+                texels.push_back(texel);
             } else if (token == "f") {
                 Face face;
                 unsigned int v, vt, vn;
@@ -73,6 +77,10 @@ void Model::initFromObjFile(char const *fileName) {
                 faces.push_back(face);
             } else if (token == "o") {
                 lineStream >> name;
+            } else if (token == "mtllib") {
+                string mtlFileName;
+                lineStream >> mtlFileName;
+                loadTexture(mtlFileName, string(fileName));
             } else {
             }
         }
@@ -169,6 +177,7 @@ const Vector3d& Model::translateCenterTo(Vector3d vertex) {
 void Model::glEnableVertexArray() {
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glVertexPointer(3,   //3 components per vertex (x,y,z)
             GL_DOUBLE,
             sizeof(vertices[0]),
@@ -177,6 +186,10 @@ void Model::glEnableVertexArray() {
             GL_DOUBLE,
             sizeof(normals[0]),
             &normals[0]);
+    glTexCoordPointer(3,
+            GL_DOUBLE,
+            sizeof(texels[0]),
+            &texels[0]);
 }
 
 void Model::glColor() {
@@ -199,4 +212,45 @@ void Model::loadIndexArrays() {
             triangleIndices.push_back(faces[i][0][0]);
         }
     }
+}
+
+void Model::loadTexture(string mtlFileName, string objFileName) {
+    string line;
+    string tgaFullPath;
+
+    string path = objFileName.substr(0, objFileName.find_last_of('/') + 1);
+    string mtlFullPath = path + mtlFileName;
+    ifstream myfile(mtlFullPath.c_str());
+    if (myfile.is_open()) {
+        for (; line.substr(0, 7) != "map_Kd "; getline(myfile, line));
+        tgaFullPath = path + line.substr(7);
+    } else {
+        perror("Unable to open mtl file");
+        exit(errno);
+    }
+    myfile.close();
+
+    // only try and load a tga for now
+    size_t extP = tgaFullPath.find_last_of('.');
+    tgaFullPath.replace(extP, string::npos, ".tga");
+
+    bool success = textureImage.LoadTGA(tgaFullPath.c_str());
+    if (!success) {
+        perror("Unable to load texture file");
+        exit(errno);
+    }
+
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, textureImage.getWidth(), textureImage.getHeight(), GL_BGRA, GL_UNSIGNED_BYTE,
+            textureImage.getDataForOpenGL());
+}
+
+void Model::glEnableTextures() {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+}
+
+void Model::glDisableTextures() {
+    glDisable(GL_TEXTURE_2D);
 }

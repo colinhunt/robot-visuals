@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(modelviewer)
 
-set(SOURCE_FILES model.cpp model.h Camera.cpp Camera.h GlTransformable.cpp GlTransformable.h)
+set(SOURCE_FILES model.cpp model.h Camera.cpp Camera.h GlTransformable.cpp GlTransformable.h TGALoader.h TGALoader.cpp)
 
 add_executable(modelviewer modelviewer.cpp ${SOURCE_FILES})
 # add_executable(modelviewerVBO modelviewerVBO.cpp ${SOURCE_FILES})
