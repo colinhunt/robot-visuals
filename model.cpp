@@ -66,6 +66,7 @@ void Model::initFromObjFile(char const *fileName) {
                 facesFlattened.push_back(faceV[0]);
                 facesFlattened.push_back(faceV[1]);
                 facesFlattened.push_back(faceV[2]);
+                // triangulate larger polygons
                 if (faceV.size() > 3) {
                     facesFlattened.push_back(faceV[2]);
                     facesFlattened.push_back(faceV[3]);
@@ -87,6 +88,9 @@ void Model::initFromObjFile(char const *fileName) {
         cerr << "Error: " << strerror(errno) << endl;
         exit(errno);
     }
+    normalize();
+    color[0] = color[1] = color[2] = 0.0;
+    color[3] = 1.0;
 }
 
 void Model::normalize() {
@@ -174,4 +178,19 @@ const Vector3d& Model::translateCenterTo(Vector3d vertex) {
 }
 
 
+void Model::glEnableVertexArray() {
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3,   //3 components per vertex (x,y,z)
+            GL_DOUBLE,
+            sizeof(Model::Vertex),
+            vertexArray());
+}
+
+void Model::glColor() {
+    glColor4fv(color);
+}
+
+void Model::glDrawVertexArray() {
+    glDrawElements(GL_TRIANGLES, (GLsizei) facesFlattened.size(), GL_UNSIGNED_INT, &facesFlattened[0]);
+}
 

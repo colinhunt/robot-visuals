@@ -12,9 +12,36 @@
 
 #include "GlTransformable.h"
 
+struct Vb {
+    Vb() {}
+
+    Vb(double left, double right, double bottom, double top, double near, double far)
+            : left(left), right(right), bottom(bottom), top(top), near(near), far(far) {
+    }
+
+    double left;
+    double right;
+    double bottom;
+    double top;
+    double near;
+    double far;
+};
+
 class Camera : public GlTransformable {
 public:
+
     void applyGlTransforms() const;
+    void applyGlProjection();
+
+    Vb vb;
+    Vb iVb;
+
+    bool ortho;
+    bool iOrtho;
+
+    void initialize(Vb viewBox, bool ortho);
+
+    virtual void reset();
 };
 
 #endif // CAMERA_H

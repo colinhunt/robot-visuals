@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(modelviewer)
 
-set(SOURCE_FILES MainUtility.h MainUtility.cpp model.cpp model.h Camera.cpp Camera.h GlTransformable.cpp GlTransformable.h)
+set(SOURCE_FILES model.cpp model.h Camera.cpp Camera.h GlTransformable.cpp GlTransformable.h)
 
 add_executable(modelviewer modelviewer.cpp ${SOURCE_FILES})
-add_executable(modelviewerVBO modelviewerVBO.cpp ${SOURCE_FILES})
-add_executable(modelviewerVAO modelviewerVAO.cpp ${SOURCE_FILES})
+# add_executable(modelviewerVBO modelviewerVBO.cpp ${SOURCE_FILES})
+# add_executable(modelviewerVAO modelviewerVAO.cpp ${SOURCE_FILES})
 
 if(APPLE)
     find_library(COCOA Cocoa)
@@ -30,5 +30,5 @@ else(APPLE)
 endif(APPLE)
 
 target_link_libraries(modelviewer ${OPENGL_LIBRARIES})
-target_link_libraries(modelviewerVBO ${OPENGL_LIBRARIES})
-target_link_libraries(modelviewerVAO ${OPENGL_LIBRARIES})
+# target_link_libraries(modelviewerVBO ${OPENGL_LIBRARIES})
+# target_link_libraries(modelviewerVAO ${OPENGL_LIBRARIES})

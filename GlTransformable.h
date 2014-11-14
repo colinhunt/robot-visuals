@@ -17,7 +17,9 @@ using namespace std;
 using namespace Eigen;
 
 class GlTransformable {
-    
+
+    Vector3d iOffset;
+    Quaterniond iOrientation;
 public:
     GlTransformable();
     
@@ -27,10 +29,13 @@ public:
             
     void applyGlTransforms() const;
 
-    void reset();
+    virtual void reset();
 
     Vector3d translationOffset;
     Quaterniond orientation;
+
+    void initialize(Vector3d offset = Vector3d::Zero(),
+            Quaterniond orientation = Quaterniond::Identity());
 };
 
 namespace GltUtil {

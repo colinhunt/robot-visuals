@@ -18,6 +18,8 @@ public:
         double x, y, z;
     };
 
+    Model() {};
+
     Model(char const *fileName);
 
     void saveToFile() const;
@@ -35,6 +37,7 @@ public:
     Vector3d const & translateCenterTo(Vector3d vertex);
     
     string name;
+    float color[4];
     vector<Vertex> vertices;
     vector< vector<int> > faces;
     vector<int> facesFlattened;
@@ -42,10 +45,16 @@ public:
     GLuint vbo;
     GLuint vao;
     GLuint ibo;
-    
-private:
 
     void initFromObjFile(char const *fileName);
+
+    void glEnableVertexArray();
+
+    void glColor();
+
+    void glDrawVertexArray();
+
+private:
 
     void normalize();
 
