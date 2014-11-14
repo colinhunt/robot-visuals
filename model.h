@@ -19,6 +19,10 @@ public:
         double x, y, z;
     };
 
+    struct Texel {
+        double x, y;
+    };
+
     Model() {};
 
     Model(char const *fileName);
@@ -36,17 +40,14 @@ public:
     float color[4];
     vector<Vertex> vertices;
     vector<Vertex> normals;
-    vector<Vertex> texels;
+    vector<Texel> texels;
     vector<Face> faces;
     vector<int> triangleIndices;
 
     NS_TGALOADER::IMAGE textureImage;
     GLuint textureId;
 
-    unsigned int displayList;
-    GLuint vbo;
-    GLuint vao;
-    GLuint ibo;
+    string mtlFileName;
 
     void initFromObjFile(char const *fileName);
 
@@ -76,5 +77,4 @@ private:
     void loadIndexArrays();
 
     void loadTexture(string mtlFileName, string objFileName);
-
 };

@@ -3,9 +3,7 @@ project(modelviewer)
 
 set(SOURCE_FILES model.cpp model.h Camera.cpp Camera.h GlTransformable.cpp GlTransformable.h TGALoader.h TGALoader.cpp)
 
-add_executable(modelviewer modelviewer.cpp ${SOURCE_FILES})
-# add_executable(modelviewerVBO modelviewerVBO.cpp ${SOURCE_FILES})
-# add_executable(modelviewerVAO modelviewerVAO.cpp ${SOURCE_FILES})
+add_executable(solidviewer solidviewer.cpp ${SOURCE_FILES})
 
 if(APPLE)
     find_library(COCOA Cocoa)
@@ -29,6 +27,4 @@ else(APPLE)
     set(OPENGL_LIBRARIES glut GLEW GL GLU X11)
 endif(APPLE)
 
-target_link_libraries(modelviewer ${OPENGL_LIBRARIES})
-# target_link_libraries(modelviewerVBO ${OPENGL_LIBRARIES})
-# target_link_libraries(modelviewerVAO ${OPENGL_LIBRARIES})
+target_link_libraries(solidviewer ${OPENGL_LIBRARIES})

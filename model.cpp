@@ -14,32 +14,43 @@
 using namespace std;
 using namespace Eigen;
 
-Model::Model(const char* fileName) : name("nameless") {
+Model::Model(const char* fileName) {
     initFromObjFile(fileName);
     normalize();
 }
 
 void Model::saveToFile() const {
-//    cout << "Saving model to output.obj" << endl;
-//    ofstream myfile("output.obj");
-//    if (myfile.is_open()) {
-//        myfile.precision(10);
-//        myfile << 'o' << ' ' << name << endl;
-//        for (int i = 0; i < vertices.size(); ++i) {
-//            myfile << 'v' << ' ' << vertices[i].x << ' ' << vertices[i].y << ' ' << vertices[i].z << endl;
-//        }
-//        for (int i = 0; i < faces.size(); ++i) {
-//            myfile << 'f';
-//            for (int j = 0; j < faces[i].size(); ++j) {
-//                myfile << ' ' << faces[i][j] + 1;
-//            }
-//            myfile << endl;
-//        }
-//    }
-//    else {
-//        cerr << "Error: " << strerror(errno) << endl;
-//        exit(errno);
-//    }
+    cout << "Saving model to meshout.obj" << endl;
+    ofstream myfile("meshout.obj");
+    if (myfile.is_open()) {
+        myfile.precision(10);
+        if (!name.empty())
+            myfile << "o " << name << endl;
+        if (!mtlFileName.empty())
+            myfile << "mtlib " << mtlFileName << endl;
+        for (int i = 0; i < vertices.size(); ++i) {
+            myfile << "v " << vertices[i].x << ' ' << vertices[i].y << ' ' << vertices[i].z << endl;
+        }
+        for (int i = 0; i < normals.size(); ++i) {
+            myfile << "vn " << normals[i].x << ' ' << normals[i].y << ' ' << normals[i].z << endl;
+        }
+        for (int i = 0; i < texels.size(); ++i) {
+            myfile << "vt " << texels[i].x << ' ' << texels[i].y << endl;
+        }
+        // for each face
+        for (int i = 0; i < faces.size(); ++i) {
+            myfile << 'f';
+            // for each vData in face
+            for (int j = 0; j < faces[i].size(); ++j) {
+                myfile << ' ' << faces[i][j][0] + 1 << '/' << faces[i][j][1] + 1 << '/' << faces[i][j][2] + 1;
+            }
+            myfile << endl;
+        }
+    }
+    else {
+        cerr << "Error: " << strerror(errno) << endl;
+        exit(errno);
+    }
 }
 
 void Model::initFromObjFile(char const *fileName) {
@@ -59,8 +70,8 @@ void Model::initFromObjFile(char const *fileName) {
                 lineStream >> normal.x >> normal.y >> normal.z;
                 normals.push_back(normal);
             } else if (token == "vt") {
-                Vertex texel;
-                lineStream >> texel.x >> texel.y >> texel.z;
+                Texel texel;
+                lineStream >> texel.x >> texel.y;
                 texels.push_back(texel);
             } else if (token == "f") {
                 Face face;
@@ -78,7 +89,6 @@ void Model::initFromObjFile(char const *fileName) {
             } else if (token == "o") {
                 lineStream >> name;
             } else if (token == "mtllib") {
-                string mtlFileName;
                 lineStream >> mtlFileName;
                 loadTexture(mtlFileName, string(fileName));
             } else {
@@ -186,7 +196,7 @@ void Model::glEnableVertexArray() {
             GL_DOUBLE,
             sizeof(normals[0]),
             &normals[0]);
-    glTexCoordPointer(3,
+    glTexCoordPointer(2,
             GL_DOUBLE,
             sizeof(texels[0]),
             &texels[0]);
@@ -242,6 +252,17 @@ void Model::loadTexture(string mtlFileName, string objFileName) {
 
     glGenTextures(1, &textureId);
     glBindTexture(GL_TEXTURE_2D, textureId);
+
+    // select modulate to mix texture with color for shading
+    glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+
+    // when texture area is small, bilinear filter the closest mipmap
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+            GL_LINEAR_MIPMAP_NEAREST );
+    // when texture area is large, bilinear filter the first mipmap
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+
     gluBuild2DMipmaps(GL_TEXTURE_2D, 4, textureImage.getWidth(), textureImage.getHeight(), GL_BGRA, GL_UNSIGNED_BYTE,
             textureImage.getDataForOpenGL());
 }
