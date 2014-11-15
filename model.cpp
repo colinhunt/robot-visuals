@@ -179,8 +179,8 @@ Vector3d Model::calculateMaxVertex() const {
 const Vector3d& Model::translateCenterTo(Vector3d vertex) {
     Vector3d center = calculateCenter();
     Vector3d offset = vertex - center;
-    translationOffset += offset;
-    return translationOffset;
+    this->offset += offset;
+    return this->offset;
 }
 
 

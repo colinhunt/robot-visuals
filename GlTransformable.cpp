@@ -8,29 +8,19 @@
  */
 
 #include "model.h"
-#include <Eigen/Geometry>
-#include <iostream>
-#include <Python/Python.h>
 
 #include "GlTransformable.h"
 
 using namespace std;
-
-double toRadians(double degrees) {
-    return degrees * (M_PI / 180);
-}
-
-double toDegrees(double radians) {
-    return radians * (180 / M_PI);
-}
+using namespace GltUtil;
 
 GlTransformable::GlTransformable() {
     initialize();
 }
 
 const Vector3d& GlTransformable::translateBy(const Vector3d& offset) {
-    translationOffset += (orientation * offset);
-    return translationOffset;
+    this->offset += (orientation * offset);
+    return offset;
 }
 
 void GlTransformable::rotateByAngleAxis(double degrees, const Vector3d& axis) {
@@ -41,8 +31,18 @@ void GlTransformable::rotateByAngleAxis(double degrees, const Vector3d& axis) {
 }
 
 void GlTransformable::applyGlTransforms() const {
-    GltUtil::applyGlTranslation(translationOffset);
+    GltUtil::applyGlTranslation(offset);
     GltUtil::applyGlRotation(orientation);
+}
+
+void GlTransformable::reset() {
+    offset = iOffset;
+    orientation = iOrientation;
+}
+
+void GlTransformable::initialize(Vector3d offset, Quaterniond orientation) {
+    this->iOffset = this->offset = offset;
+    this->iOrientation = this->orientation = orientation;
 }
 
 // GltUtil functions:
@@ -59,14 +59,4 @@ void GltUtil::applyGlTranslation(const Vector3d& translation) {
     glTranslated(translation.x(),
                  translation.y(),
                  translation.z());
-}
-
-void GlTransformable::reset() {
-    translationOffset = iOffset;
-    orientation = iOrientation;
-}
-
-void GlTransformable::initialize(Vector3d offset, Quaterniond orientation) {
-    this->iOffset = this->translationOffset = offset;
-    this->iOrientation = this->orientation = orientation;
 }

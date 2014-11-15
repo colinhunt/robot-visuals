@@ -4,6 +4,7 @@ project(modelviewer)
 set(SOURCE_FILES model.cpp model.h Camera.cpp Camera.h GlTransformable.cpp GlTransformable.h TGALoader.h TGALoader.cpp)
 
 add_executable(solidviewer solidviewer.cpp ${SOURCE_FILES})
+add_executable(attachviewer attachviewer.cpp BvhParser.h BvhParser.cpp Skeleton.h Skeleton.cpp ${SOURCE_FILES})
 
 if(APPLE)
     find_library(COCOA Cocoa)
@@ -28,3 +29,4 @@ else(APPLE)
 endif(APPLE)
 
 target_link_libraries(solidviewer ${OPENGL_LIBRARIES})
+target_link_libraries(attachviewer ${OPENGL_LIBRARIES})
