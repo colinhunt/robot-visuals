@@ -67,6 +67,11 @@ namespace GltUtil {
         minSoFar[1] = min(minSoFar[1], contender[1]);
         minSoFar[2] = min(minSoFar[2], contender[2]);
     }
+
+    inline
+    int mod(int a, int b) {
+        return (a%b+b)%b;
+    }
 };
 
 #endif // GL_TRANSFORMABLE_H

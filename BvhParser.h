@@ -33,6 +33,8 @@ struct Motion {
 struct BvhData {
     Skeleton skeleton;
     Motion motion;
+
+    void initFromBvhFile(char* fileName);
 };
 
 class BvhParser {

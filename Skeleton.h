@@ -20,10 +20,14 @@ public:
 
 class Skeleton {
 public:
-    Skeleton() : maxP(-GltUtil::INF, -GltUtil::INF, -GltUtil::INF), minP(GltUtil::INF, GltUtil::INF, GltUtil::INF) {}
+    Skeleton() : size(0), maxP(-GltUtil::INF, -GltUtil::INF, -GltUtil::INF), minP(GltUtil::INF, GltUtil::INF, GltUtil::INF) {}
 
     Joint root;
     Vector3d maxP, minP;
+
+    void glDraw();
+
+    int size;
 };
 
 #endif // SKELETON_H

@@ -146,6 +146,7 @@ void BvhParser::parse() {
     data.skeleton.maxP[2] = span.x() / 2;
     data.skeleton.minP[2] = -(span.x() / 2);
 //    cout << "Skeleton box: " << data.skeleton.maxP << " " << data.skeleton.minP << endl;
+    data.skeleton.size = data.motion.rotationsPerFrame;
 }
 
 void BvhParser::initRoot(string line) {
@@ -301,4 +302,32 @@ void printHierarchy(ofstream &myfile, Joint &joint, string tabs) {
     }
     tabs.erase(tabs.size()-1);
     myfile << tabs << "}\n";
+}
+
+void BvhData::initFromBvhFile(char* fileName) {
+    string line;
+    ifstream myfile(fileName);
+    if (myfile.is_open()) {
+        BvhParser parser(myfile, *this);
+        parser.parse();
+//        cout << data.motion.channels.size() << endl;
+//        cout << data.motion.frames.size() << endl;
+//        cout << data.motion.frames[0].rotations.size() << endl;
+//        for (int i = 0; i < motion.frames[0].rotations.size(); ++i) {
+//            Quaterniond q = motion.frames[0].rotations[i];
+//            cout << q.w() << q.x() << q.y() << q.z() << ":";
+//        }
+//        cout << endl;
+//        cout << "Motion max point: " << data.motion.maxP << endl;
+//        cout << "Motion min point: " << data.motion.minP << endl;
+    } else {
+        if (myfile.fail())
+            cout << "Logical error" << endl;
+        if (myfile.bad())
+            cout << "Read/writing error" << endl;
+        cout << "Unable to open file" << endl;
+        cerr << "Error: " << strerror(errno) << endl;
+        exit(errno);
+    }
+    myfile.close();
 }

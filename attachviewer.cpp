@@ -10,9 +10,11 @@
 #include "openglincludes.h"
 #include "Camera.h"
 #include "model.h"
+#include "BvhParser.h"
+#include "Articulator.h"
 
 
-void setup(char*);
+void setup(char**);
 void drawScene(void);
 void resize(int, int);
 void keyInput(unsigned char, int, int);
@@ -22,6 +24,8 @@ void printInteraction(void);
 // Globals.
 Model myModel;
 Camera myCamera;
+BvhData bvhData;
+Articulator art;
 
 // Main routine.
 int main(int argc, char **argv) {
@@ -39,18 +43,27 @@ int main(int argc, char **argv) {
     glutSpecialFunc(specialKeyInput);
     glewExperimental = GL_TRUE;
     glewInit();
-    setup(argv[1]);
+    setup(argv);
     printInteraction();
     glutMainLoop();
     return 0;
 }
 
-void setup(char* fileName)
+void setup(char **argv)
 {
-    myModel.initFromObjFile(fileName);
+    myModel.initFromObjFile(argv[1]);
+    myModel.initialize(Vector3d(0, 0, -10));
+    bvhData.initFromBvhFile(argv[2]);
+//    art.initAttachments(argv[3]);
+
     myModel.glEnableVertexArray();
+    myModel.color[0] = myModel.color[1] = myModel.color[2] = myModel.color[3]
+            = 0.9;
+
+    art.attach(&bvhData, &myModel);
+
     myCamera.initialize(Vb(-1.0, 1.0, -1.0, 1.0, 1, 100), false);
-    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -69,10 +82,9 @@ void drawScene(void)
 
     myModel.applyGlTransforms(); // object transformation
 
-    // draw model
+    // draw skeleton and model attachments
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    myModel.glColor();
-    myModel.glDrawVertexArray();
+    art.glDrawAttachments();
     glutSwapBuffers();
 }
 
@@ -95,6 +107,7 @@ void keyInput(unsigned char key, int x, int y) {
         case 'x': {
             myModel.reset();
             myCamera.reset();
+            art.reset();
         }
             break;
         case 'w':
@@ -161,6 +174,12 @@ void keyInput(unsigned char key, int x, int y) {
             break;
         case 'L':
             myCamera.rotateByAngleAxis(10, Vector3d::UnitZ());
+            break;
+        case '+':
+            art.highlightNextBone();
+            break;
+        case '-':
+            art.highlightPrevBone();
             break;
         default:
             break;

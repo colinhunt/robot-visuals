@@ -106,7 +106,7 @@ void Model::initFromObjFile(char const *fileName) {
         exit(errno);
     }
     loadIndexArrays();
-    normalizeCenter();
+//    normalizeCenter();
     color[0] = color[1] = color[2] = 0.0;
     color[3] = 1.0;
 }
