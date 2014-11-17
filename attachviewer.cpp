@@ -54,7 +54,7 @@ void setup(char **argv)
     myModel.initFromObjFile(argv[1]);
     myModel.initialize(Vector3d(0, 0, -10));
     bvhData.initFromBvhFile(argv[2]);
-//    art.initAttachments(argv[3]);
+    art.initAttachments(argv[3]);
 
     myModel.glEnableVertexArray();
     myModel.color[0] = myModel.color[1] = myModel.color[2] = myModel.color[3]

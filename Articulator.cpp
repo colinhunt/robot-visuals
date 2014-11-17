@@ -1,3 +1,4 @@
+#include <fstream>
 #include "Articulator.h"
 
 void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations) {
@@ -67,4 +68,24 @@ void Articulator::highlightPrevBone() {
 
 void Articulator::reset() {
     hlBone = -1;
+}
+
+void Articulator::initAttachments(char* attFileName) {
+    string line;
+    ifstream myfile(attFileName);
+    if (!myfile.is_open()) {
+        perror("Unable to open .att file");
+        exit(EXIT_FAILURE);
+    }
+    while (getline(myfile, line)) {
+        char sep;
+        stringstream lineStream(line);
+        int v, bId;
+        double w;
+        lineStream >> v;
+        while (lineStream >> sep >> bId >> sep >> w >> sep) {
+            cout << v << " " << bId << " " << w << endl;
+        }
+    }
+    myfile.close();
 }

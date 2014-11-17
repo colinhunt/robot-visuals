@@ -27,6 +27,8 @@ public:
     int hlBone;
 
     void reset();
+
+    void initAttachments(char* attFileName);
 };
 
 #endif // ARTICULATOR_H
