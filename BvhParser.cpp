@@ -303,7 +303,6 @@ void printHierarchy(ofstream &myfile, Joint &joint, string tabs) {
 }
 
 void BvhData::initFromBvhFile(char* fileName) {
-    string line;
     ifstream myfile(fileName);
     if (myfile.is_open()) {
         BvhParser parser(myfile, *this);
@@ -327,5 +326,8 @@ void BvhData::initFromBvhFile(char* fileName) {
         cerr << "Error: " << strerror(errno) << endl;
         exit(errno);
     }
+    mvmntMax = motion.maxP + skeleton.maxP;
+    mvmntMin = motion.minP + skeleton.minP;
+
     myfile.close();
 }

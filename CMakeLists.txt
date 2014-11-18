@@ -5,6 +5,7 @@ set(SOURCE_FILES model.cpp model.h Camera.cpp Camera.h GlTransformable.cpp GlTra
 
 add_executable(solidviewer solidviewer.cpp ${SOURCE_FILES})
 add_executable(attachviewer attachviewer.cpp BvhParser.h BvhParser.cpp Skeleton.h Skeleton.cpp Articulator.h Articulator.cpp ${SOURCE_FILES})
+add_executable(personviewer personviewer.cpp BvhParser.h BvhParser.cpp Skeleton.h Skeleton.cpp Articulator.h Articulator.cpp FrameTimer.h ${SOURCE_FILES})
 
 if(APPLE)
     find_library(COCOA Cocoa)
@@ -30,3 +31,4 @@ endif(APPLE)
 
 target_link_libraries(solidviewer ${OPENGL_LIBRARIES})
 target_link_libraries(attachviewer ${OPENGL_LIBRARIES})
+target_link_libraries(personviewer ${OPENGL_LIBRARIES})

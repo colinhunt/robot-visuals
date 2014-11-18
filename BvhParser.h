@@ -34,7 +34,11 @@ struct BvhData {
     Skeleton skeleton;
     Motion motion;
 
+    Vector3d mvmntMax;
+    Vector3d mvmntMin;
+
     void initFromBvhFile(char* fileName);
+
 };
 
 class BvhParser {

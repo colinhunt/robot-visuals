@@ -1,5 +1,38 @@
 #include <fstream>
 #include "Articulator.h"
+#include "FrameTimer.h"
+
+void Articulator::animate() {
+    TimeVal timeLeft = timer.TimeLeft();
+//    cout << "timeLeft " << timeLeft << endl;
+    if (animateOn && timeLeft <= 0) {
+        TimeVal delta = frameTime - timeLeft;
+        int correction = (int) round(delta / frameTime);
+//        cout << "correction " << correction << endl;
+        glutPostRedisplay();
+//        cout << "frameStep: " << frameStep() * correction << endl;
+        currFrame += frameStep() * correction;
+        timer.Start();
+    } else {
+//        cout << "no display frame " << timer.TimeLeft() << endl;
+    }
+}
+
+void Articulator::drawNextFrame() {
+    // use current frame to pose skeleton (update transformations for each joint)
+    // loop through vertices in mesh and update with info from joints and attachments
+    // draw mesh
+    currFrame = GltUtil::mod(currFrame, bvhData->motion.interpolatedFrames.size());
+    pose(bvhData->skeleton, bvhData->motion.interpolatedFrames[currFrame]);
+}
+
+void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
+    const Vector3d &translation = frame.translation;
+    const vector<Quaterniond> &rotations = frame.rotations;
+    glTranslated(translation.x(), translation.y(), translation.z());
+
+    poseJoints(skeleton.root, rotations);
+}
 
 void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations) {
 //    cout << "Posing joint " << joint.name << " " << joint.id << endl;
@@ -28,14 +61,6 @@ void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations)
     }
 
     glPopMatrix();
-}
-
-void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
-    const Vector3d &translation = frame.translation;
-    const vector<Quaterniond> &rotations = frame.rotations;
-    glTranslated(translation.x(), translation.y(), translation.z());
-
-    poseJoints(skeleton.root, rotations);
 }
 
 void Articulator::glDrawAttachments() {
@@ -70,8 +95,6 @@ void Articulator::glDrawAttachments() {
     } else {
         mesh->glEnableColorArray();
     }
-    if (hlBone == -1)
-        mesh->glColor();
     mesh->glDrawVertexArray();
 }
 
@@ -92,6 +115,10 @@ void Articulator::highlightPrevBone() {
 
 void Articulator::reset() {
     hlBone = -1;
+    start = true;
+    fps = ofps;
+    currFrame = 0;
+    animateOn = false;
 }
 
 void Articulator::initAttachments(char* attFileName) {

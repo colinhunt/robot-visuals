@@ -16,6 +16,7 @@
 
 void setup(char**);
 void drawScene(void);
+void animate();
 void resize(int, int);
 void keyInput(unsigned char, int, int);
 void specialKeyInput(int, int, int);
@@ -41,6 +42,7 @@ int main(int argc, char **argv) {
     glutReshapeFunc(resize);
     glutKeyboardFunc(keyInput);
     glutSpecialFunc(specialKeyInput);
+    glutIdleFunc(animate);
     glewExperimental = GL_TRUE;
     glewInit();
     setup(argv);
@@ -52,14 +54,10 @@ int main(int argc, char **argv) {
 void setup(char **argv)
 {
     myModel.initFromObjFile(argv[1]);
-    myModel.initialize(Vector3d(0, 0, -10));
     bvhData.initFromBvhFile(argv[2]);
     art.initAttachments(argv[3]);
 
-    bvhData.motion.interpolate(10); // precompute interpolated frames down to 10fps
-
     myModel.glEnableVertexArray();
-    myModel.glEnableColorArray();
     myModel.color[0] = myModel.color[1] = myModel.color[2] = myModel.color[3]
             = 0.9;
 
@@ -87,10 +85,14 @@ void drawScene(void)
 
     // draw skeleton and model attachments
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    art.glDrawAttachments();
+    art.drawNextFrame();
     glutSwapBuffers();
 }
 
+
+void animate() {
+    art.animate();
+}
 
 void resize(int w, int h)
 {
