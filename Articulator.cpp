@@ -12,10 +12,10 @@ void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations)
     if (joint.id == hlBone) {
         glPushAttrib(GL_CURRENT_BIT);
         glColor3d(1, 0, 0);
-        cout << joint.name << endl;
+//        cout << joint.name << endl;
     }
 
-    joint.orientation = rotations[joint.id];
+    joint.orientation = rotations[joint.rId];
     joint.draw();
     joint.applyGlTransforms();
 
@@ -77,12 +77,12 @@ void Articulator::attach(BvhData* data, Model* mesh) {
 
 void Articulator::highlightNextBone() {
     hlBone = GltUtil::mod(hlBone + 1, bvhData->skeleton.size);
-    cout << hlBone + 1 << endl;
+    cout << hlBone << endl;
 }
 
 void Articulator::highlightPrevBone() {
     hlBone = GltUtil::mod(hlBone - 1, bvhData->skeleton.size);
-    cout << hlBone + 1 << endl;
+    cout << hlBone << endl;
 }
 
 void Articulator::reset() {
