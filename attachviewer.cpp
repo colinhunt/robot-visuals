@@ -56,8 +56,6 @@ void setup(char **argv)
     bvhData.initFromBvhFile(argv[2]);
     art.initAttachments(argv[3]);
 
-    bvhData.motion.interpolate(10); // precompute interpolated frames down to 10fps
-
     myModel.glEnableVertexArray();
     myModel.glEnableColorArray();
     myModel.color[0] = myModel.color[1] = myModel.color[2] = myModel.color[3]

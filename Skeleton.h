@@ -14,7 +14,7 @@ public:
     int rId;
     string type;
     string name;
-    vector<Joint> children;
+    vector<Joint*> children;
     vector<string> channels;
     Vector3d absPosition;
 };
@@ -24,10 +24,11 @@ public:
     Skeleton() : size(0), maxP(-GltUtil::INF, -GltUtil::INF, -GltUtil::INF), minP(GltUtil::INF, GltUtil::INF, GltUtil::INF) {}
 
     Joint root;
+    vector<Joint*> joints;
+
     Vector3d maxP, minP;
 
     void glDraw();
-
     int size;
 };
 

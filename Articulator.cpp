@@ -2,6 +2,18 @@
 #include "Articulator.h"
 #include "FrameTimer.h"
 
+Articulator::Articulator() : hlBone(-1),
+                             frameTime(0.008333),
+                             timer(frameTime),
+                             ofps((int) round(1.0 / frameTime)) {
+    fps = ofps;
+    animateOn = false;
+}
+
+int Articulator::frameStep() {
+    return fps / bvhData->motion.fps;
+}
+
 void Articulator::animate() {
     TimeVal timeLeft = timer.TimeLeft();
 //    cout << "timeLeft " << timeLeft << endl;
@@ -12,6 +24,7 @@ void Articulator::animate() {
         glutPostRedisplay();
 //        cout << "frameStep: " << frameStep() * correction << endl;
         currFrame += frameStep() * correction;
+        currFrame = GltUtil::mod(currFrame, bvhData->motion.interpolatedFrames.size());
         timer.Start();
     } else {
 //        cout << "no display frame " << timer.TimeLeft() << endl;
@@ -22,8 +35,38 @@ void Articulator::drawNextFrame() {
     // use current frame to pose skeleton (update transformations for each joint)
     // loop through vertices in mesh and update with info from joints and attachments
     // draw mesh
-    currFrame = GltUtil::mod(currFrame, bvhData->motion.interpolatedFrames.size());
-    pose(bvhData->skeleton, bvhData->motion.interpolatedFrames[currFrame]);
+    Frame &frame = bvhData->motion.interpolatedFrames[currFrame];
+    pose(bvhData->skeleton, frame);
+    glColor3d(1,0,0);
+    glPointSize(5);
+    cout << bvhData->skeleton.joints.size() << endl;
+    for (int i = 0; i < bvhData->skeleton.joints.size(); ++i) {
+        cout << bvhData->skeleton.joints[i]->absPosition << endl;
+        cout << "<<<<<<<<<<<<<<<" << endl;
+        glBegin(GL_POINTS);
+        glVertex3d(bvhData->skeleton.joints[i]->absPosition.x(), bvhData->skeleton.joints[i]->absPosition.y(), bvhData->skeleton.joints[i]->absPosition.z());
+        glEnd();
+    }
+    mesh->glColor();
+//    for (int i = 0; i < mesh->vertices.size(); ++i) {
+//        Vector3d oldP(mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
+//        Vector3d newP(Vector3d::Zero());
+//        for (int j = 0; j < attachments[i].size(); ++j) {
+//            int bId = attachments[i][j].first; // bone id and weight
+//            double weight = attachments[i][j].second;
+//            // find joint in skel from id and get the orientation applied
+//            Joint& joint = *bvhData->skeleton.joints[bId];
+//            Vector3d jthP = oldP - joint.absPosition; // Mj
+//            jthP = joint.orientation * jthP;                // Rj
+//            jthP += joint.absPosition; // Mj^-1
+//            jthP = Scaling(weight) * jthP;                        // w_ij
+//            newP += jthP;
+//        }
+//        mesh->vertices[i].x = newP.x();
+//        mesh->vertices[i].y = newP.y();
+//        mesh->vertices[i].z = newP.z();
+//    }
+//    mesh->glDrawVertexArray();
 }
 
 void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
@@ -37,8 +80,8 @@ void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
 void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations) {
 //    cout << "Posing joint " << joint.name << " " << joint.id << endl;
 //    cout << "children: " << joint.children.size() << endl;
-    if (joint.rId == -1) // end site
-        return;
+//    if (joint.rId == -1) // end site
+//        return;
 
     glPushMatrix();
 
@@ -48,7 +91,8 @@ void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations)
 //        cout << joint.name << endl;
     }
 
-    joint.orientation = rotations[joint.rId];
+    if (joint.rId != -1)
+        joint.orientation = rotations[joint.rId];
     joint.draw();
     joint.applyGlTransforms();
 
@@ -57,7 +101,7 @@ void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations)
     }
 
     for (int i = 0; i < joint.children.size(); i++) {
-        poseJoints(joint.children[i], rotations);
+        poseJoints(*joint.children[i], rotations);
     }
 
     glPopMatrix();
@@ -115,7 +159,6 @@ void Articulator::highlightPrevBone() {
 
 void Articulator::reset() {
     hlBone = -1;
-    start = true;
     fps = ofps;
     currFrame = 0;
     animateOn = false;
@@ -142,4 +185,28 @@ void Articulator::initAttachments(char* attFileName) {
         attachments.push_back(weights);
     }
     myfile.close();
+}
+
+void Articulator::startAnimation() {
+    animateOn = true;
+    cout << "Framerate: " << fps << endl;
+//            cout << "frameStep: " << frameStep() << endl;
+    timer.Start();
+}
+
+void Articulator::stopAnimation() {
+    timer.Stop();
+    animateOn = false;
+}
+
+void Articulator::decreaseFps() {
+    fps -= 10;
+    cout << "Framerate: " << fps << endl;
+//            cout << "frameStep: " << frameStep() << endl;
+}
+
+void Articulator::increaseFps() {
+    fps += 10;
+    cout << "Framerate: " << fps << endl;
+//            cout << "frameStep: " << frameStep() << endl;
 }

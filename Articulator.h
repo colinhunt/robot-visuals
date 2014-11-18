@@ -8,15 +8,7 @@
 
 class Articulator {
 public:
-    Articulator() :
-            hlBone(-1),
-            frameTime(0.008333),
-            timer(frameTime),
-            ofps((int) round(1.0 / frameTime))
-    {
-        fps = ofps;
-        animateOn = false;
-    }
+    Articulator();
 
     void pose(Skeleton& skeleton, const Frame& frame);
 
@@ -51,6 +43,16 @@ public:
     void drawNextFrame();
 
     void animate();
+
+    int frameStep();
+
+    void startAnimation();
+
+    void stopAnimation();
+
+    void decreaseFps();
+
+    void increaseFps();
 };
 
 #endif // ARTICULATOR_H

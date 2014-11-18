@@ -57,6 +57,8 @@ void setup(char **argv)
     bvhData.initFromBvhFile(argv[2]);
     art.initAttachments(argv[3]);
 
+    bvhData.motion.interpolate(10); // precompute interpolated frames down to 10fps
+
     myModel.glEnableVertexArray();
     myModel.color[0] = myModel.color[1] = myModel.color[2] = myModel.color[3]
             = 0.9;
@@ -64,6 +66,8 @@ void setup(char **argv)
     art.attach(&bvhData, &myModel);
 
     myCamera.initialize(Vb(-1.0, 1.0, -1.0, 1.0, 1, 100), false);
+    myCamera.positionMotion(bvhData);
+
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glEnable(GL_DEPTH_TEST);
 }
@@ -74,6 +78,7 @@ void drawScene(void)
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+
     myCamera.applyGlProjection(); // camera view volume
 
     glMatrixMode(GL_MODELVIEW);
@@ -85,7 +90,9 @@ void drawScene(void)
 
     // draw skeleton and model attachments
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     art.drawNextFrame();
+
     glutSwapBuffers();
 }
 
@@ -126,10 +133,10 @@ void keyInput(unsigned char key, int x, int y) {
             myModel.translateBy(Vector3d(0, 0, 0.1));
         }
             break;
-        case 'p':
+        case 'o':
             myModel.rotateByAngleAxis(-10, Vector3d::UnitX());
             break;
-        case 'P':
+        case 'O':
             myModel.rotateByAngleAxis(10, Vector3d::UnitX());
             break;
         case 'y':
@@ -180,11 +187,17 @@ void keyInput(unsigned char key, int x, int y) {
         case 'L':
             myCamera.rotateByAngleAxis(10, Vector3d::UnitZ());
             break;
-        case '+':
-            art.highlightNextBone();
+        case 'p':
+            art.startAnimation();
+            break;
+        case 'P':
+            art.stopAnimation();
             break;
         case '-':
-            art.highlightPrevBone();
+            art.decreaseFps();
+            break;
+        case '+':
+            art.increaseFps();
             break;
         default:
             break;

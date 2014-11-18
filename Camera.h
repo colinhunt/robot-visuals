@@ -11,6 +11,7 @@
 #define CAMERA_H
 
 #include "GlTransformable.h"
+#include "BvhParser.h"
 
 struct Vb {
     Vb() {}
@@ -42,6 +43,8 @@ public:
     void initialize(Vb viewBox, bool ortho);
 
     virtual void reset();
+
+    void positionMotion(const BvhData &data);
 };
 
 #endif // CAMERA_H

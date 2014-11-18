@@ -32,3 +32,9 @@ void Camera::initialize(Vb viewBox, bool ortho) {
     this->iVb = this->vb = viewBox;
     this->iOrtho = this->ortho = ortho;
 }
+
+void Camera::positionMotion(BvhData const &bvhData) {
+    Vector3d motionOffset = bvhData.center;
+    motionOffset.z() += abs(bvhData.center.z() - bvhData.mvmntMax.maxCoeff()) + vb.near;
+    GlTransformable::initialize(motionOffset);
+}

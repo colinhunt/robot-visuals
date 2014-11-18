@@ -36,6 +36,7 @@ struct BvhData {
 
     Vector3d mvmntMax;
     Vector3d mvmntMin;
+    Vector3d center;
 
     void initFromBvhFile(char* fileName);
 
@@ -61,9 +62,9 @@ private:
 
     void parseMotion();
 
-    void parseHierarchy(Joint& joint, int &id, int &rotationIndex);
+    void parseHierarchy(Joint* joint, int &id, int &rotationIndex);
 
-    void calculateSkelBox(Joint& joint);
+    void calculateSkelBox(Joint* joint);
 
     BvhData &data;
     ifstream &myfile;

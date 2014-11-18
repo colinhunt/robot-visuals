@@ -8,45 +8,48 @@ void printHierarchy(ofstream &myfile, Joint &joint, string tabs);
 
 void printMotion(ofstream &ofstream, Motion &motion);
 
-void BvhParser::calculateSkelBox(Joint& joint) {
-//    cout << "Joint name: " << joint.name << endl;
-    for (int i = 0; i < joint.children.size(); ++i) {
-        Joint& child = joint.children[i];
-        child.absPosition = joint.absPosition + child.offset;
-//        cout << "Child abs: \n" << child.absPosition << endl;
-//        cout << "= Parent abs: \n" << joint.absPosition << endl;
-//        cout << "+ Child offset: \n" << child.offset << endl;
-        GltUtil::setMax(data.skeleton.maxP, child.absPosition);
-        GltUtil::setMin(data.skeleton.minP, child.absPosition);
+void BvhParser::calculateSkelBox(Joint* joint) {
+    static int count = 0;
+    cout << "Joint name: " << joint->name << " " << count++ << endl;
+    for (int i = 0; i < joint->children.size(); ++i) {
+        Joint* child = joint->children[i];
+        child->absPosition = joint->absPosition + child->offset;
+        cout << "Child abs: \n" << child->absPosition << endl;
+        cout << "= Parent abs: \n" << joint->absPosition << endl;
+        cout << "+ Child offset: \n" << child->offset << endl;
+        GltUtil::setMax(data.skeleton.maxP, child->absPosition);
+        GltUtil::setMin(data.skeleton.minP, child->absPosition);
         calculateSkelBox(child);
     }
 }
 
-void BvhParser::parseHierarchy(Joint &joint, int &id, int &rotationIndex) {
+void BvhParser::parseHierarchy(Joint *joint, int &id, int &rotationIndex) {
     string line;
     while (getline(myfile, line)) {
         string token;
         stringstream lineStream(line);
         lineStream >> token;
 //        cout << "Token is: " << token << endl;
-        Joint child;
+        Joint* child = new Joint();
         if (token == "JOINT") {
-            child.id = id++;
-            child.rId = rotationIndex++;
-            child.type = token;
-            lineStream >> child.name;
+            child->id = id++;
+            child->rId = rotationIndex++;
+            child->type = token;
+            lineStream >> child->name;
             parseHierarchy(child, id, rotationIndex);
-            joint.children.push_back(child);
+            joint->children.push_back(child);
+            data.skeleton.joints.push_back(child);
         } else if (token == "End") {
-            child.id = id++;
-            child.type = "End Site";
+            child->id = id++;
+            child->type = "End Site";
             parseHierarchy(child, id, rotationIndex);
-            joint.children.push_back(child);
+            joint->children.push_back(child);
+            data.skeleton.joints.push_back(child);
         } else if (token == "OFFSET") {
             double x, y, z;
             lineStream >> x >> y >> z;
 //            cout << "OFFSET " << x << " " << y << " " << z << endl;
-            joint.offset = Vector3d(x, y, z);
+            joint->offset = Vector3d(x, y, z);
         } else if (token == "CHANNELS") {
             int num;
             lineStream >> num;
@@ -54,7 +57,7 @@ void BvhParser::parseHierarchy(Joint &joint, int &id, int &rotationIndex) {
                 string channel;
                 lineStream >> channel;
                 data.motion.channels.push_back(channel);
-                joint.channels.push_back(channel);
+                joint->channels.push_back(channel);
             }
         } else if (token == "{") {
             // skip
@@ -135,9 +138,10 @@ void BvhParser::parse() {
     initRoot(line);
 
     int jointId = 1;
-    parseHierarchy(data.skeleton.root, jointId, data.motion.rotationsPerFrame);
+    parseHierarchy(&data.skeleton.root, jointId, data.motion.rotationsPerFrame);
     parseMotion();
-    calculateSkelBox(data.skeleton.root);
+    data.skeleton.root.absPosition = data.skeleton.root.offset;
+    calculateSkelBox(&data.skeleton.root);
     // make it a proper cube to capture skeleton range of motion inside
     // l, w, h of box
     Vector3d span = data.skeleton.maxP - data.skeleton.minP;
@@ -160,7 +164,9 @@ void BvhParser::initRoot(string line) {
     data.motion.rotationsPerFrame = 0;
     data.skeleton.root.rId = data.motion.rotationsPerFrame++;
     data.skeleton.root.id = 0;
+    data.skeleton.joints.push_back(&data.skeleton.root);
     lineStream >> data.skeleton.root.name;
+
 //    cout << "Skeleton name is " << data.skeleton.root.name << endl;
 
 }
@@ -296,7 +302,7 @@ void printHierarchy(ofstream &myfile, Joint &joint, string tabs) {
         myfile << endl;
     }
     for (int i = 0; i < joint.children.size(); ++i) {
-        printHierarchy(myfile, joint.children[i], tabs);
+        printHierarchy(myfile, *joint.children[i], tabs);
     }
     tabs.erase(tabs.size()-1);
     myfile << tabs << "}\n";
@@ -326,8 +332,10 @@ void BvhData::initFromBvhFile(char* fileName) {
         cerr << "Error: " << strerror(errno) << endl;
         exit(errno);
     }
+    myfile.close();
+
     mvmntMax = motion.maxP + skeleton.maxP;
     mvmntMin = motion.minP + skeleton.minP;
-
-    myfile.close();
+    Vector3d diag = (mvmntMax + mvmntMin);
+    center = diag * Scaling(0.5);
 }
