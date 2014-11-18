@@ -64,6 +64,8 @@ public:
 
     void glEnableColorArray();
 
+    void glDisableColorArray();
+
 private:
 
     void normalize();

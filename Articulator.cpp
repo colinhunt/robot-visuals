@@ -39,7 +39,6 @@ void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
 }
 
 void Articulator::glDrawAttachments() {
-    static bool enabled = false;
     Frame f;
     f.translation.setZero();
     f.rotations = vector<Quaterniond>(bvhData->motion.rotationsPerFrame,
@@ -65,8 +64,14 @@ void Articulator::glDrawAttachments() {
             }
     }
     cout << "attached: " << att << endl;
-    if (!enabled)
+    if (hlBone == -1) {
+        mesh->glDisableColorArray();
+        mesh->glColor();
+    } else {
         mesh->glEnableColorArray();
+    }
+    if (hlBone == -1)
+        mesh->glColor();
     mesh->glDrawVertexArray();
 }
 

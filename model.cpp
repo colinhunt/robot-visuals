@@ -207,6 +207,10 @@ void Model::glEnableColorArray() {
     glColorPointer(3, GL_DOUBLE, sizeof(Vertex), &colors[0]);
 }
 
+void Model::glDisableColorArray() {
+    glDisableClientState(GL_COLOR_ARRAY);
+}
+
 
 void Model::glColor() {
     glColor4fv(color);
