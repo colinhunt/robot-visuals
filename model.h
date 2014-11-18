@@ -40,6 +40,7 @@ public:
     float color[4];
     vector<Vertex> vertices;
     vector<Vertex> normals;
+    vector<Vertex> colors;
     vector<Texel> texels;
     vector<Face> faces;
     vector<int> triangleIndices;
@@ -60,6 +61,8 @@ public:
     void glDisableTextures();
 
     void glEnableTextures();
+
+    void glEnableColorArray();
 
 private:
 

@@ -7,10 +7,11 @@
 
 class Joint : public GlTransformable {
 public:
-    Joint(): absPosition(Vector3d::Zero()){}
+    Joint(): rId(-1), absPosition(Vector3d::Zero()){}
     void draw();
 
     int id;
+    int rId;
     string type;
     string name;
     vector<Joint> children;

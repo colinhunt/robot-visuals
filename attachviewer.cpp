@@ -57,6 +57,7 @@ void setup(char **argv)
     art.initAttachments(argv[3]);
 
     myModel.glEnableVertexArray();
+    myModel.glEnableColorArray();
     myModel.color[0] = myModel.color[1] = myModel.color[2] = myModel.color[3]
             = 0.9;
 

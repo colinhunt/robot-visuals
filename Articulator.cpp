@@ -4,7 +4,7 @@
 void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations) {
 //    cout << "Posing joint " << joint.name << " " << joint.id << endl;
 //    cout << "children: " << joint.children.size() << endl;
-    if (joint.id == -1)
+    if (joint.rId == -1) // end site
         return;
 
     glPushMatrix();
@@ -12,6 +12,7 @@ void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations)
     if (joint.id == hlBone) {
         glPushAttrib(GL_CURRENT_BIT);
         glColor3d(1, 0, 0);
+        cout << joint.name << endl;
     }
 
     joint.orientation = rotations[joint.id];
@@ -38,6 +39,7 @@ void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
 }
 
 void Articulator::glDrawAttachments() {
+    static bool enabled = false;
     Frame f;
     f.translation.setZero();
     f.rotations = vector<Quaterniond>(bvhData->motion.rotationsPerFrame,
@@ -47,7 +49,24 @@ void Articulator::glDrawAttachments() {
     else
         glColor3d(0,0,0);
     pose(bvhData->skeleton, f);
-    mesh->glColor();
+    mesh->colors.clear();
+    int att = 0;
+    for (int i = 0; i < mesh->vertices.size(); ++i) {
+        Model::Vertex color3 = {0.1,0.1,0.1};
+        mesh->colors.push_back(color3);
+        for (int j = 0; j < attachments[i].size(); ++j)
+            if (attachments[i][j].first == hlBone) {
+                double color = 0.9 * attachments[i][j].second + 0.1;
+                mesh->colors.back().x = color;
+                mesh->colors.back().y = color;
+                mesh->colors.back().z = color;
+                att++;
+                break;
+            }
+    }
+    cout << "attached: " << att << endl;
+    if (!enabled)
+        mesh->glEnableColorArray();
     mesh->glDrawVertexArray();
 }
 
@@ -58,12 +77,12 @@ void Articulator::attach(BvhData* data, Model* mesh) {
 
 void Articulator::highlightNextBone() {
     hlBone = GltUtil::mod(hlBone + 1, bvhData->skeleton.size);
-    cout << hlBone << endl;
+    cout << hlBone + 1 << endl;
 }
 
 void Articulator::highlightPrevBone() {
     hlBone = GltUtil::mod(hlBone - 1, bvhData->skeleton.size);
-    cout << hlBone << endl;
+    cout << hlBone + 1 << endl;
 }
 
 void Articulator::reset() {
@@ -83,9 +102,12 @@ void Articulator::initAttachments(char* attFileName) {
         int v, bId;
         double w;
         lineStream >> v;
+        vector<pair<int, double> > weights;
         while (lineStream >> sep >> bId >> sep >> w >> sep) {
-            cout << v << " " << bId << " " << w << endl;
+//            cout << v << " " << bId << " " << w << endl;
+            weights.push_back(pair<int,double>(bId, w));
         }
+        attachments.push_back(weights);
     }
     myfile.close();
 }

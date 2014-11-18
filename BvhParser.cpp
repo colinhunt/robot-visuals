@@ -22,7 +22,7 @@ void BvhParser::calculateSkelBox(Joint& joint) {
     }
 }
 
-void BvhParser::parseHierarchy(Joint &joint, int &id) {
+void BvhParser::parseHierarchy(Joint &joint, int &id, int &rotationIndex) {
     string line;
     while (getline(myfile, line)) {
         string token;
@@ -32,13 +32,16 @@ void BvhParser::parseHierarchy(Joint &joint, int &id) {
         Joint child;
         if (token == "JOINT") {
             child.id = id++;
+            child.rId = rotationIndex++;
             child.type = token;
             lineStream >> child.name;
-            addChild(child, joint, id);
+            parseHierarchy(child, id, rotationIndex);
+            joint.children.push_back(child);
         } else if (token == "End") {
-            child.id = -1;
+            child.id = id++;
             child.type = "End Site";
-            addChild(child, joint, id);
+            parseHierarchy(child, id, rotationIndex);
+            joint.children.push_back(child);
         } else if (token == "OFFSET") {
             double x, y, z;
             lineStream >> x >> y >> z;
@@ -62,12 +65,6 @@ void BvhParser::parseHierarchy(Joint &joint, int &id) {
             exit(EXIT_FAILURE);
         }
     }
-}
-
-void BvhParser::addChild(Joint& child, Joint& parent, int& id) {
-//    cout << "Adding child... " << child.name << endl;
-    parseHierarchy(child, id);
-    parent.children.push_back(child);
 }
 
 void BvhParser::parseMotion() {
@@ -137,7 +134,8 @@ void BvhParser::parse() {
 
     initRoot(line);
 
-    parseHierarchy(data.skeleton.root, data.motion.rotationsPerFrame);
+    int jointId = 1;
+    parseHierarchy(data.skeleton.root, jointId, data.motion.rotationsPerFrame);
     parseMotion();
     calculateSkelBox(data.skeleton.root);
     // make it a proper cube to capture skeleton range of motion inside
@@ -146,7 +144,7 @@ void BvhParser::parse() {
     data.skeleton.maxP[2] = span.x() / 2;
     data.skeleton.minP[2] = -(span.x() / 2);
 //    cout << "Skeleton box: " << data.skeleton.maxP << " " << data.skeleton.minP << endl;
-    data.skeleton.size = data.motion.rotationsPerFrame;
+    data.skeleton.size = jointId;
 }
 
 void BvhParser::initRoot(string line) {
@@ -159,9 +157,9 @@ void BvhParser::initRoot(string line) {
     }
 
     data.skeleton.root.type = token;
-
     data.motion.rotationsPerFrame = 0;
-    data.skeleton.root.id = data.motion.rotationsPerFrame++;
+    data.skeleton.root.rId = data.motion.rotationsPerFrame++;
+    data.skeleton.root.id = 0;
     lineStream >> data.skeleton.root.name;
 //    cout << "Skeleton name is " << data.skeleton.root.name << endl;
 

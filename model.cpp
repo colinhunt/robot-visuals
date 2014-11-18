@@ -202,6 +202,12 @@ void Model::glEnableVertexArray() {
             &texels[0]);
 }
 
+void Model::glEnableColorArray() {
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(3, GL_DOUBLE, sizeof(Vertex), &colors[0]);
+}
+
+
 void Model::glColor() {
     glColor4fv(color);
 }

@@ -57,10 +57,7 @@ private:
 
     void parseMotion();
 
-    void addChild(Joint& child, Joint& parent, int& id);
-
-
-    void parseHierarchy(Joint &joint, int &id);
+    void parseHierarchy(Joint& joint, int &id, int &rotationIndex);
 
     void calculateSkelBox(Joint& joint);
 

@@ -19,12 +19,12 @@ public:
 
     BvhData* bvhData;
     Model* mesh;
+    int hlBone;
+    vector<vector<pair<int,double> > > attachments;
 
     void highlightNextBone();
 
     void highlightPrevBone();
-
-    int hlBone;
 
     void reset();
 
