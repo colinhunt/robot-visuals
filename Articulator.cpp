@@ -11,7 +11,8 @@ Articulator::Articulator() : hlBone(-1),
 }
 
 int Articulator::frameStep() {
-    return fps / bvhData->motion.fps;
+//    cout << fps << " " << bvhData->motion.lowestFps << endl;
+    return fps / bvhData->motion.lowestFps;
 }
 
 void Articulator::animate() {
@@ -25,6 +26,7 @@ void Articulator::animate() {
 //        cout << "frameStep: " << frameStep() * correction << endl;
         currFrame += frameStep() * correction;
         currFrame = GltUtil::mod(currFrame, bvhData->motion.interpolatedFrames.size());
+//        cout << currFrame << endl;
         timer.Start();
     } else {
 //        cout << "no display frame " << timer.TimeLeft() << endl;
@@ -36,17 +38,10 @@ void Articulator::drawNextFrame() {
     // loop through vertices in mesh and update with info from joints and attachments
     // draw mesh
     Frame &frame = bvhData->motion.interpolatedFrames[currFrame];
-    pose(bvhData->skeleton, frame);
+    Model::Vertex zero = {0,0,0};
+    mesh->vertexArray = vector<Model::Vertex>(mesh->vertices.size(), zero);
     glColor3d(1,0,0);
-    glPointSize(5);
-    cout << bvhData->skeleton.joints.size() << endl;
-    for (int i = 0; i < bvhData->skeleton.joints.size(); ++i) {
-        cout << bvhData->skeleton.joints[i]->absPosition << endl;
-        cout << "<<<<<<<<<<<<<<<" << endl;
-        glBegin(GL_POINTS);
-        glVertex3d(bvhData->skeleton.joints[i]->absPosition.x(), bvhData->skeleton.joints[i]->absPosition.y(), bvhData->skeleton.joints[i]->absPosition.z());
-        glEnd();
-    }
+    pose(bvhData->skeleton, frame);
     mesh->glColor();
 //    for (int i = 0; i < mesh->vertices.size(); ++i) {
 //        Vector3d oldP(mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
@@ -66,7 +61,7 @@ void Articulator::drawNextFrame() {
 //        mesh->vertices[i].y = newP.y();
 //        mesh->vertices[i].z = newP.z();
 //    }
-//    mesh->glDrawVertexArray();
+    mesh->glDrawVertexArray();
 }
 
 void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
@@ -74,10 +69,10 @@ void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
     const vector<Quaterniond> &rotations = frame.rotations;
     glTranslated(translation.x(), translation.y(), translation.z());
 
-    poseJoints(skeleton.root, rotations);
+    poseJoints(skeleton.root, Quaterniond::Identity(),rotations);
 }
 
-void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations) {
+void Articulator::poseJoints(Joint &joint, Quaterniond parentRot, vector<Quaterniond> const &rotations) {
 //    cout << "Posing joint " << joint.name << " " << joint.id << endl;
 //    cout << "children: " << joint.children.size() << endl;
 //    if (joint.rId == -1) // end site
@@ -91,17 +86,53 @@ void Articulator::poseJoints(Joint &joint, vector<Quaterniond> const &rotations)
 //        cout << joint.name << endl;
     }
 
+    joint.draw();
+
     if (joint.rId != -1)
         joint.orientation = rotations[joint.rId];
-    joint.draw();
+
     joint.applyGlTransforms();
+    joint.orientation *= parentRot;
+
+//    for (int i = 0; i < mesh->vertices.size(); ++i) {
+//        Vector3d jthP = oldP - joint.absPosition; // Mj
+//                jthP = joint.orientation * jthP;                // Rj
+//                jthP += joint.absPosition; // Mj^-1
+//                jthP = Scaling(weight) * jthP;                        // w_ij
+//                newP += jthP;
+
+    Vector3d jStartPos = joint.absPosition - joint.offset;
+
+//    for (int i = 0; i < mesh->vertices.size(); ++i) {
+//        for (int j = 0; j < attachments[i].size(); ++j)
+//            if (attachments[i][j].first == joint.id) {
+//                Vector3d oldP(mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
+//                double weight = attachments[i][j].second;
+////                Vector3d jthP = oldP - jStartPos;   // Mj
+//                Vector3d jthP = oldP;   // Mj
+//                jthP = joint.orientation * jthP;            // Rj
+////                jthP += jStartPos;                  // Mj^-1
+////                jthP[0] = jthP[0] * weight;
+////                jthP[1] = jthP[1] * weight;
+////                jthP[2] = jthP[2] * weight;              // w_ij
+////                cout << "weight " << weight << endl;
+////                mesh->vertexArray[i].x += jthP.x();
+////                mesh->vertexArray[i].y += jthP.y();
+////                mesh->vertexArray[i].z += jthP.z();
+//                mesh->vertexArray[i].x = jthP.x();
+//                mesh->vertexArray[i].y = jthP.y();
+//                mesh->vertexArray[i].z += jthP.z();
+//                break;
+//            }
+//    }
+
 
     if (joint.id == hlBone) {
         glPopAttrib();
     }
 
     for (int i = 0; i < joint.children.size(); i++) {
-        poseJoints(*joint.children[i], rotations);
+        poseJoints(*joint.children[i], joint.orientation, rotations);
     }
 
     glPopMatrix();
@@ -145,6 +176,10 @@ void Articulator::glDrawAttachments() {
 void Articulator::attach(BvhData* data, Model* mesh) {
     this->bvhData = data;
     this->mesh = mesh;
+    timer.Set(data->motion.frameTime);
+    frameTime = data->motion.frameTime;
+    ofps = (int) round(1.0 / frameTime);
+    fps = ofps;
 }
 
 void Articulator::highlightNextBone() {
@@ -209,4 +244,24 @@ void Articulator::increaseFps() {
     fps += 10;
     cout << "Framerate: " << fps << endl;
 //            cout << "frameStep: " << frameStep() << endl;
+}
+
+void Articulator::saveAttToFile() {
+    cout << "Saving att data to attachout.att" << endl;
+    ofstream myfile("attachout.att");
+    if (myfile.is_open()) {
+        myfile.precision(10);
+        for (int i = 0; i < attachments.size(); ++i) {
+            myfile << i + 1;
+            for (int j = 0; j < attachments[i].size(); ++j) {
+                myfile << " (" << attachments[i][j].first
+                        << "," << attachments[i][j].second << ")";
+            }
+            myfile << endl;
+        }
+    } else {
+        perror("Writing bvh file");
+        exit(errno);
+    }
+    myfile.close();
 }

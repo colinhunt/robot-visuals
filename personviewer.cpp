@@ -124,6 +124,8 @@ void keyInput(unsigned char key, int x, int y) {
             break;
         case 'w':
             myModel.saveToFile();
+            art.saveAttToFile();
+            saveAsBvhFile(bvhData);
             break;
         case 'n': {
             myModel.translateBy(Vector3d(0, 0, -0.1));

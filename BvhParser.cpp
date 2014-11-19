@@ -102,6 +102,9 @@ void BvhParser::parseMotion() {
         GltUtil::setMax(data.motion.maxP, f.translation);
         GltUtil::setMin(data.motion.minP, f.translation);
 //        cout << "min so far: " << data.motion.minP << endl;
+        cout << "rotations " << data.motion.rotationsPerFrame << endl;
+        cout << "channels " << data.motion.channels.size() << endl;
+        assert(data.motion.rotationsPerFrame == (data.motion.channels.size() - 3) / 3);
         for (int i = 0; i < data.motion.rotationsPerFrame; ++i) {
             int fi = (i + 1) * 3;
             lineStream >> n1 >> n2 >> n3;
@@ -226,7 +229,7 @@ AngleAxisd BvhParser::getQuaternion(int i, double n) {
 }
 
 void Motion::interpolate(int fps) {
-    this->fps = fps;
+    this->lowestFps = fps;
     int originalFps = (int) round(1 / frameTime);
 //    cout << "originalFps " << originalFps << endl;
     int framesPerOrig = originalFps / fps;
@@ -243,8 +246,8 @@ void Motion::interpolate(int fps) {
                     ));
         }
     }
-//    cout << "oFrames.size() " << frames.size() << endl;
-//    cout << "iFrames.size() " << interpolatedFrames.size() << endl;
+    cout << "oFrames.size() " << frames.size() << endl;
+    cout << "iFrames.size() " << interpolatedFrames.size() << endl;
 }
 
 Frame Motion::interpolate(Frame const &frame1, Frame const &frame2, double lambda) {
@@ -259,8 +262,8 @@ Frame Motion::interpolate(Frame const &frame1, Frame const &frame2, double lambd
 }
 
 void saveAsBvhFile(BvhData &data) {
-    cout << "Saving bvh data to output.bvh" << endl;
-    ofstream myfile("output.bvh");
+    cout << "Saving bvh data to skeletonout.bvh" << endl;
+    ofstream myfile("skeletonout.bvh");
     if (myfile.is_open()) {
         myfile.precision(10);
         myfile << "HIERARCHY\n";

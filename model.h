@@ -39,6 +39,8 @@ public:
     string name;
     float color[4];
     vector<Vertex> vertices;
+
+    vector<Vertex> vertexArray;
     vector<Vertex> normals;
     vector<Vertex> colors;
     vector<Texel> texels;

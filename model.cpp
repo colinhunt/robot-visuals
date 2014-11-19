@@ -105,6 +105,7 @@ void Model::initFromObjFile(char const *fileName) {
         cerr << "Error: " << strerror(errno) << endl;
         exit(errno);
     }
+    vertexArray = vertices;
     loadIndexArrays();
 //    normalizeCenter();
     color[0] = color[1] = color[2] = 0.0;
@@ -190,8 +191,8 @@ void Model::glEnableVertexArray() {
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glVertexPointer(3,   //3 components per vertex (x,y,z)
             GL_DOUBLE,
-            sizeof(vertices[0]),
-            &vertices[0]);
+            sizeof(vertexArray[0]),
+            &vertexArray[0]);
     glNormalPointer(
             GL_DOUBLE,
             sizeof(normals[0]),

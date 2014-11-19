@@ -24,7 +24,7 @@ struct Motion {
     vector<Frame> frames;
     vector<Frame> interpolatedFrames;
     Vector3d maxP, minP;
-    int fps;
+    int lowestFps;
     void interpolate(int fps);
 
     Frame interpolate(Frame const &frame1, Frame const &frame2, double lambda);

@@ -12,7 +12,7 @@ public:
 
     void pose(Skeleton& skeleton, const Frame& frame);
 
-    void poseJoints(Joint& joint, vector<Quaterniond> const& rotations);
+    void poseJoints(Joint& joint, Quaterniond parentRot, vector<Quaterniond> const& rotations);
 
     void glDrawAttachments();
 
@@ -25,7 +25,7 @@ public:
 
     int currFrame;
     TimeVal frameTime;
-    const int ofps;
+    int ofps;
     int fps;
     FrameTimer timer;
     bool animateOn;
@@ -53,6 +53,8 @@ public:
     void decreaseFps();
 
     void increaseFps();
+
+    void saveAttToFile();
 };
 
 #endif // ARTICULATOR_H
