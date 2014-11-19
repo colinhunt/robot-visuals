@@ -5,15 +5,23 @@ CXXFLAGS = -I/opt/X11/include -I/opt/local/include -Wno-write-strings
 LDLIBS = -lGLEW -lGLUT
 LDFLAGS = -L/opt/X11/lib -L/opt/local/lib -framework Cocoa -framework OpenGL -framework GLUT
 
-mainOfiles = model.o GlTransformable.o Camera.o
-mainHeaders = model.h Camera.h
+mainOfiles = model.o GlTransformable.o Camera.o TGALoader.o
+mainHeaders = model.h Camera.h TGALoader.h
 
 
-all: solidviewer
+all: solidviewer attachviewer personviewer
 
-solidviewer: solidviewer.o $(mainOfiles) TGALoader.o
+solidviewer: solidviewer.o $(mainOfiles)
 
-solidviewer.o: solidviewer.cpp $(mainHeaders) TGALoader.h
+solidviewer.o: solidviewer.cpp $(mainHeaders)
+
+attachviewer: attachviewer.o $(mainOfiles) BvhParser.o Skeleton.o Articulator.o
+
+attachviewer.o: attachviewer.cpp $(mainHeaders) BvhParser.h Skeleton.h Articulator.h
+
+personviewer: personviewer.o $(mainOfiles) BvhParser.o Skeleton.o Articulator.o
+
+personviewer.o: personviewer.cpp $(mainHeaders) BvhParser.h Skeleton.h Articulator.h FrameTimer.h
 
 model.o: model.cpp model.h
 
@@ -23,5 +31,11 @@ Camera.o: Camera.cpp Camera.h
 
 TGALoader.o: TGALoader.cpp TGALoader.h
 
+BvhParser.o: BvhParser.cpp BvhParser.h
+
+Skeleton.o: Skeleton.cpp Skeleton.h
+
+Articulator.o: Articulator.cpp Articulator.h
+
 clean:
-	rm -rf solidviewer *.o
+	rm -rf *viewer *.o
