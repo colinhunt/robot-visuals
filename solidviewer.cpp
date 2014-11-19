@@ -228,8 +228,6 @@ void printInteraction(void) {
     cout << "Interaction:" << endl;
     cout << "Press 'q' to quit" << endl;
     cout << "Press 'w' to save the model to disk" << endl;
-    cout << "Press 'v' for orthographic projection" << endl;
-    cout << "Press 'V' for perspective projection" << endl;
     cout << "Press 'up arrow' to translate the model up" << endl;
     cout << "Press 'down arrow' to translate the model down" << endl;
     cout << "Press 'left arrow' to translate the model left" << endl;
@@ -255,4 +253,5 @@ void printInteraction(void) {
     cout << "Press 'l' to roll the camera by -10 degrees" << endl;
     cout << "Press 'L' to roll the camera by 10 degrees" << endl;
     cout << "Press 'x' to reset model and camera position" << endl;
+    cout << "Press 's' to toggle through shading and texture" << endl;
 }

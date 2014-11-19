@@ -10,13 +10,13 @@ void printMotion(ofstream &ofstream, Motion &motion);
 
 void BvhParser::calculateSkelBox(Joint* joint) {
     static int count = 0;
-    cout << "Joint name: " << joint->name << " " << count++ << endl;
+//    cout << "Joint name: " << joint->name << " " << count++ << endl;
     for (int i = 0; i < joint->children.size(); ++i) {
         Joint* child = joint->children[i];
         child->absPosition = joint->absPosition + child->offset;
-        cout << "Child abs: \n" << child->absPosition << endl;
-        cout << "= Parent abs: \n" << joint->absPosition << endl;
-        cout << "+ Child offset: \n" << child->offset << endl;
+//        cout << "Child abs: \n" << child->absPosition << endl;
+//        cout << "= Parent abs: \n" << joint->absPosition << endl;
+//        cout << "+ Child offset: \n" << child->offset << endl;
         GltUtil::setMax(data.skeleton.maxP, child->absPosition);
         GltUtil::setMin(data.skeleton.minP, child->absPosition);
         calculateSkelBox(child);
@@ -102,8 +102,8 @@ void BvhParser::parseMotion() {
         GltUtil::setMax(data.motion.maxP, f.translation);
         GltUtil::setMin(data.motion.minP, f.translation);
 //        cout << "min so far: " << data.motion.minP << endl;
-        cout << "rotations " << data.motion.rotationsPerFrame << endl;
-        cout << "channels " << data.motion.channels.size() << endl;
+//        cout << "rotations " << data.motion.rotationsPerFrame << endl;
+//        cout << "channels " << data.motion.channels.size() << endl;
         assert(data.motion.rotationsPerFrame == (data.motion.channels.size() - 3) / 3);
         for (int i = 0; i < data.motion.rotationsPerFrame; ++i) {
             int fi = (i + 1) * 3;
@@ -246,8 +246,8 @@ void Motion::interpolate(int fps) {
                     ));
         }
     }
-    cout << "oFrames.size() " << frames.size() << endl;
-    cout << "iFrames.size() " << interpolatedFrames.size() << endl;
+//    cout << "oFrames.size() " << frames.size() << endl;
+//    cout << "iFrames.size() " << interpolatedFrames.size() << endl;
 }
 
 Frame Motion::interpolate(Frame const &frame1, Frame const &frame2, double lambda) {

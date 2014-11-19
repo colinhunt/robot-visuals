@@ -30,6 +30,7 @@ Camera myCamera;
 BvhData bvhData;
 Articulator art;
 unsigned shading = OFF;
+bool start = true;
 
 // Main routine.
 int main(int argc, char **argv) {
@@ -69,7 +70,7 @@ void setup(char **argv)
     art.attach(&bvhData, &myModel);
 
     myCamera.initialize(Vb(-1.0, 1.0, -1.0, 1.0, 1, 100), false);
-    myCamera.positionMotion(bvhData);
+    myCamera.initialize(Vector3d(0,0,10));
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glEnable(GL_DEPTH_TEST);
@@ -114,7 +115,10 @@ void drawScene(void)
         myModel.glEnableTextures();
     }
 
-    art.drawNextFrame();
+    if (start)
+        art.glDrawAttachments();
+    else
+        art.drawNextFrame();
 
     glutSwapBuffers();
 }
@@ -144,6 +148,7 @@ void keyInput(unsigned char key, int x, int y) {
             myCamera.reset();
             art.reset();
             shading = OFF;
+            start = true;
         }
             break;
         case 'w':
@@ -214,7 +219,10 @@ void keyInput(unsigned char key, int x, int y) {
             myCamera.rotateByAngleAxis(10, Vector3d::UnitZ());
             break;
         case 'p':
+            if (start)
+                myCamera.positionMotion(bvhData);
             art.startAnimation();
+            start = false;
             break;
         case 'P':
             art.stopAnimation();
@@ -267,8 +275,8 @@ void printInteraction(void) {
     cout << "Press 'right arrow' to translate the model right" << endl;
     cout << "Press 'n' to translate the model -0.1 z" << endl;
     cout << "Press 'N' to translate the model 0.1 z" << endl;
-    cout << "Press 'p' to pitch the model by -10 degrees" << endl;
-    cout << "Press 'P' to pitch the model by 10 degrees" << endl;
+    cout << "Press 'o' to pitch the model by -10 degrees" << endl;
+    cout << "Press 'O' to pitch the model by 10 degrees" << endl;
     cout << "Press 'y' to yaw the model by -10 degrees" << endl;
     cout << "Press 'Y' to yaw the model by 10 degrees" << endl;
     cout << "Press 'r' to roll the model by -10 degrees" << endl;
@@ -286,4 +294,9 @@ void printInteraction(void) {
     cout << "Press 'l' to roll the camera by -10 degrees" << endl;
     cout << "Press 'L' to roll the camera by 10 degrees" << endl;
     cout << "Press 'x' to reset model and camera position" << endl;
+    cout << "Press 's' to toggle through shading and texture" << endl;
+    cout << "Press 'p' to start the animation" << endl;
+    cout << "Press 'P' to pause the animation" << endl;
+    cout << "Press 'x' to reset everything" << endl;
+    cout << "Press '+' and '-' to increase and decrease the framerate" << endl;
 }

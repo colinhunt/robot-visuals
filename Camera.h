@@ -40,6 +40,8 @@ public:
     bool ortho;
     bool iOrtho;
 
+    GlTransformable::initialize;
+
     void initialize(Vb viewBox, bool ortho);
 
     virtual void reset();
