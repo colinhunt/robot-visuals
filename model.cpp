@@ -257,7 +257,7 @@ void Model::loadTexture(string mtlFileName, string objFileName) {
 
     bool success = textureImage.LoadTGA(tgaFullPath.c_str());
     if (!success) {
-        perror("Unable to load texture file");
+        perror("Unable to load TGA file");
         exit(errno);
     }
 
