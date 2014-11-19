@@ -57,7 +57,6 @@ void setup(char* fileName)
     glEnable(GL_DEPTH_TEST);
     float Ambient[4]={0.5f,0.5f,0.5f,1.0f};
     glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient);
-
 }
 
 void drawScene(void)

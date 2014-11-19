@@ -103,28 +103,28 @@ void Articulator::poseJoints(Joint &joint, Quaterniond parentRot, vector<Quatern
 
     Vector3d jStartPos = joint.absPosition - joint.offset;
 
-//    for (int i = 0; i < mesh->vertices.size(); ++i) {
-//        for (int j = 0; j < attachments[i].size(); ++j)
-//            if (attachments[i][j].first == joint.id) {
-//                Vector3d oldP(mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
-//                double weight = attachments[i][j].second;
-////                Vector3d jthP = oldP - jStartPos;   // Mj
-//                Vector3d jthP = oldP;   // Mj
+    for (int i = 0; i < mesh->vertices.size(); ++i) {
+        for (int j = 0; j < attachments[i].size(); ++j)
+            if (attachments[i][j].first == joint.id) {
+                Vector3d oldP(mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
+                double weight = attachments[i][j].second;
+//                Vector3d jthP = oldP - jStartPos;   // Mj
+                Vector3d jthP = oldP;   // Mj
 //                jthP = joint.orientation * jthP;            // Rj
-////                jthP += jStartPos;                  // Mj^-1
-////                jthP[0] = jthP[0] * weight;
-////                jthP[1] = jthP[1] * weight;
-////                jthP[2] = jthP[2] * weight;              // w_ij
-////                cout << "weight " << weight << endl;
-////                mesh->vertexArray[i].x += jthP.x();
-////                mesh->vertexArray[i].y += jthP.y();
-////                mesh->vertexArray[i].z += jthP.z();
-//                mesh->vertexArray[i].x = jthP.x();
-//                mesh->vertexArray[i].y = jthP.y();
+//                jthP += jStartPos;                  // Mj^-1
+//                jthP[0] = jthP[0] * weight;
+//                jthP[1] = jthP[1] * weight;
+//                jthP[2] = jthP[2] * weight;              // w_ij
+//                cout << "weight " << weight << endl;
+//                mesh->vertexArray[i].x += jthP.x();
+//                mesh->vertexArray[i].y += jthP.y();
 //                mesh->vertexArray[i].z += jthP.z();
-//                break;
-//            }
-//    }
+                mesh->vertexArray[i].x = jthP.x();
+                mesh->vertexArray[i].y = jthP.y();
+                mesh->vertexArray[i].z = jthP.z();
+                break;
+            }
+    }
 
 
     if (joint.id == hlBone) {

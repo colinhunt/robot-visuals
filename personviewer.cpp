@@ -13,6 +13,8 @@
 #include "BvhParser.h"
 #include "Articulator.h"
 
+enum shadeType {OFF, FLAT, SMOOTH, TEXTURE, NUM_SHADE_TYPES};
+
 
 void setup(char**);
 void drawScene(void);
@@ -27,6 +29,7 @@ Model myModel;
 Camera myCamera;
 BvhData bvhData;
 Articulator art;
+unsigned shading = OFF;
 
 // Main routine.
 int main(int argc, char **argv) {
@@ -70,10 +73,14 @@ void setup(char **argv)
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glEnable(GL_DEPTH_TEST);
+
+    float Ambient[4]={0.5f,0.5f,0.5f,1.0f};
+    glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient);
 }
 
 void drawScene(void)
 {
+    glEnable(GL_LIGHT0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glMatrixMode(GL_PROJECTION);
@@ -88,8 +95,22 @@ void drawScene(void)
 
     myModel.applyGlTransforms(); // object transformation
 
-    // draw skeleton and model attachments
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (shading == OFF) {
+        glDisable(GL_LIGHTING);
+        myModel.glDisableTextures();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+        glEnable(GL_LIGHTING);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    if (shading == FLAT) {
+        glShadeModel(GL_FLAT);
+    } else if (shading == SMOOTH) {
+        glShadeModel(GL_SMOOTH);
+    } else if (shading == TEXTURE) {
+        myModel.glEnableTextures();
+    }
 
     art.drawNextFrame();
 
@@ -120,6 +141,7 @@ void keyInput(unsigned char key, int x, int y) {
             myModel.reset();
             myCamera.reset();
             art.reset();
+            shading = OFF;
         }
             break;
         case 'w':
@@ -200,6 +222,9 @@ void keyInput(unsigned char key, int x, int y) {
             break;
         case '+':
             art.increaseFps();
+            break;
+        case 's':
+            shading = (shading + 1) % NUM_SHADE_TYPES;
             break;
         default:
             break;
