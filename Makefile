@@ -43,4 +43,4 @@ clean:
 	rm -rf *viewer *.o
 
 zip:
-	zip sapViewers.zip *.cpp *.h Makefile README
+	zip sapViewers.zip *.cpp *.h Makefile README.md

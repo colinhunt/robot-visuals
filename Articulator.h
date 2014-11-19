@@ -12,7 +12,7 @@ public:
 
     void pose(Skeleton& skeleton, const Frame& frame);
 
-    void poseJoints(Joint &joint, Quaterniond currRotation, vector<Quaterniond> const &rotations, Vector3d currOffset);
+    void poseJoints(Joint &joint, Affine3d currTransf, vector<Quaterniond> const &rotations, Vector3d currOffset);
 
     void glDrawAttachments();
 

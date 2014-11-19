@@ -218,7 +218,7 @@ void Model::glColor() {
 }
 
 void Model::glDrawVertexArray() {
-    glDrawElements(GL_TRIANGLES, (GLsizei) triangleIndices.size(), GL_UNSIGNED_INT, &triangleIndices[0]);
+    glDrawElements(GL_POINTS, (GLsizei) triangleIndices.size(), GL_UNSIGNED_INT, &triangleIndices[0]);
 }
 
 void Model::loadIndexArrays() {
