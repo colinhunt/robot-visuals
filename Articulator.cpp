@@ -69,10 +69,13 @@ void Articulator::pose(Skeleton &skeleton, const Frame &frame) {
     const vector<Quaterniond> &rotations = frame.rotations;
     glTranslated(translation.x(), translation.y(), translation.z());
 
-    poseJoints(skeleton.root, Quaterniond::Identity(),rotations);
+    poseJoints(skeleton.root, Quaterniond::Identity(), rotations, Vector3d::Zero());
 }
 
-void Articulator::poseJoints(Joint &joint, Quaterniond parentRot, vector<Quaterniond> const &rotations) {
+void Articulator::poseJoints(Joint &joint,
+        Quaterniond currRotation,
+        vector<Quaterniond> const &rotations,
+        Vector3d currOffset) {
 //    cout << "Posing joint " << joint.name << " " << joint.id << endl;
 //    cout << "children: " << joint.children.size() << endl;
 //    if (joint.rId == -1) // end site
@@ -92,7 +95,8 @@ void Articulator::poseJoints(Joint &joint, Quaterniond parentRot, vector<Quatern
         joint.orientation = rotations[joint.rId];
 
     joint.applyGlTransforms();
-    joint.orientation *= parentRot;
+    currRotation *= joint.orientation;
+
 
 //    for (int i = 0; i < mesh->vertices.size(); ++i) {
 //        Vector3d jthP = oldP - joint.absPosition; // Mj
@@ -101,38 +105,38 @@ void Articulator::poseJoints(Joint &joint, Quaterniond parentRot, vector<Quatern
 //                jthP = Scaling(weight) * jthP;                        // w_ij
 //                newP += jthP;
 
-    Vector3d jStartPos = joint.absPosition - joint.offset;
 
     for (int i = 0; i < mesh->vertices.size(); ++i) {
         for (int j = 0; j < attachments[i].size(); ++j)
             if (attachments[i][j].first == joint.id) {
                 Vector3d oldP(mesh->vertices[i].x, mesh->vertices[i].y, mesh->vertices[i].z);
                 double weight = attachments[i][j].second;
-//                Vector3d jthP = oldP - jStartPos;   // Mj
-                Vector3d jthP = oldP;   // Mj
-//                jthP = joint.orientation * jthP;            // Rj
-//                jthP += jStartPos;                  // Mj^-1
-//                jthP[0] = jthP[0] * weight;
-//                jthP[1] = jthP[1] * weight;
-//                jthP[2] = jthP[2] * weight;              // w_ij
+                Vector3d jthP = oldP - currOffset;   // Mj
+//                Vector3d jthP = oldP;   // Mj
+                jthP = currRotation * jthP;            // Rj
+                jthP += currOffset;                  // Mj^-1
+                jthP[0] = jthP[0] * weight;
+                jthP[1] = jthP[1] * weight;
+                jthP[2] = jthP[2] * weight;              // w_ij
 //                cout << "weight " << weight << endl;
-//                mesh->vertexArray[i].x += jthP.x();
-//                mesh->vertexArray[i].y += jthP.y();
-//                mesh->vertexArray[i].z += jthP.z();
-                mesh->vertexArray[i].x = jthP.x();
-                mesh->vertexArray[i].y = jthP.y();
-                mesh->vertexArray[i].z = jthP.z();
+                mesh->vertexArray[i].x += jthP.x();
+                mesh->vertexArray[i].y += jthP.y();
+                mesh->vertexArray[i].z += jthP.z();
+//                mesh->vertexArray[i].x = jthP.x();
+//                mesh->vertexArray[i].y = jthP.y();
+//                mesh->vertexArray[i].z = jthP.z();
                 break;
             }
     }
 
+    currOffset += joint.offset;
 
     if (joint.id == hlBone) {
         glPopAttrib();
     }
 
     for (int i = 0; i < joint.children.size(); i++) {
-        poseJoints(*joint.children[i], joint.orientation, rotations);
+        poseJoints(*joint.children[i], currRotation, rotations, currOffset);
     }
 
     glPopMatrix();
@@ -147,6 +151,8 @@ void Articulator::glDrawAttachments() {
         glColor3d(1, 0, 0);
     else
         glColor3d(0,0,0);
+    Model::Vertex zero = {0,0,0};
+    mesh->vertexArray = vector<Model::Vertex>(mesh->vertices.size(), zero);
     pose(bvhData->skeleton, f);
     mesh->colors.clear();
     int att = 0;

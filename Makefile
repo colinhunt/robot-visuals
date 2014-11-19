@@ -7,20 +7,23 @@ mainOfiles = model.o GlTransformable.o Camera.o MainUtility.o
 mainHeaders = model.h Camera.h MainUtility.h
 
 
-all: modelviewer modelviewerVBO modelviewerVAO
+mainOfiles = model.o GlTransformable.o Camera.o TGALoader.o
+mainHeaders = model.h Camera.h TGALoader.h
 
-modelviewer: modelviewer.o $(mainOfiles)
 
-modelviewer.o: modelviewer.cpp $(mainHeaders)
+all: solidviewer attachviewer personviewer
 
-modelviewerVBO: modelviewerVBO.o $(mainOfiles)
+solidviewer: solidviewer.o $(mainOfiles)
 
-modelviewerVBO.o: modelviewerVBO.cpp $(mainHeaders)
+solidviewer.o: solidviewer.cpp $(mainHeaders)
 
-modelviewerVAO: modelviewerVAO.o $(mainOfiles)
+attachviewer: attachviewer.o $(mainOfiles) BvhParser.o Skeleton.o Articulator.o
 
-modelviewerVAO.o: modelviewerVAO.cpp $(mainHeaders)
+attachviewer.o: attachviewer.cpp $(mainHeaders) BvhParser.h Skeleton.h Articulator.h
 
+personviewer: personviewer.o $(mainOfiles) BvhParser.o Skeleton.o Articulator.o
+
+personviewer.o: personviewer.cpp $(mainHeaders) BvhParser.h Skeleton.h Articulator.h FrameTimer.h
 
 model.o: model.cpp model.h
 
@@ -28,10 +31,16 @@ GlTransformable.o: GlTransformable.cpp GlTransformable.h
 
 Camera.o: Camera.cpp Camera.h
 
-MainUtility.o: MainUtility.cpp MainUtility.h
+TGALoader.o: TGALoader.cpp TGALoader.h
+
+BvhParser.o: BvhParser.cpp BvhParser.h
+
+Skeleton.o: Skeleton.cpp Skeleton.h
+
+Articulator.o: Articulator.cpp Articulator.h
 
 clean:
-	rm -rf modelviewer modelviewerVBO modelviewerVAO *.o
-	
+	rm -rf *viewer *.o
+
 zip:
-	zip modelviewer.zip *.cpp *.h Makefile
+	zip sapViewers.zip *.cpp *.h Makefile README

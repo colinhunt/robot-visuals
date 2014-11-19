@@ -7,9 +7,13 @@
  *
  */
 
+#include <iostream>
+
 #include "openglincludes.h"
 #include "Camera.h"
 #include "model.h"
+
+using namespace std;
 
 enum shadeType {OFF, FLAT, SMOOTH, TEXTURE, NUM_SHADE_TYPES};
 
