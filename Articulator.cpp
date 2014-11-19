@@ -61,6 +61,7 @@ void Articulator::drawNextFrame() {
 //        mesh->vertices[i].y = newP.y();
 //        mesh->vertices[i].z = newP.z();
 //    }
+
     mesh->glDrawVertexArray();
 }
 
@@ -96,7 +97,6 @@ void Articulator::poseJoints(Joint &joint,
 
     joint.applyGlTransforms();
 
-//    currRotation = joint.orientation * currRotation;
 
     for (int i = 0; i < mesh->vertices.size(); ++i) {
         for (int j = 0; j < attachments[i].size(); ++j)
@@ -108,16 +108,13 @@ void Articulator::poseJoints(Joint &joint,
 //                Vector3d jthP = oldP;   // Mj
                 jthP = currTransf * jthP;            // Rj
 //                jthP += currOffset;                  // Mj^-1
-//                jthP[0] = jthP[0] * weight;
-//                jthP[1] = jthP[1] * weight;
-//                jthP[2] = jthP[2] * weight;              // w_ij
+                jthP[0] = jthP[0] * weight;
+                jthP[1] = jthP[1] * weight;
+                jthP[2] = jthP[2] * weight;              // w_ij
 //                cout << "weight " << weight << endl;
-//                mesh->vertexArray[i].x += jthP.x();
-//                mesh->vertexArray[i].y += jthP.y();
-//                mesh->vertexArray[i].z += jthP.z();
-                mesh->vertexArray[i].x = jthP.x();
-                mesh->vertexArray[i].y = jthP.y();
-                mesh->vertexArray[i].z = jthP.z();
+                mesh->vertexArray[i].x += jthP.x();
+                mesh->vertexArray[i].y += jthP.y();
+                mesh->vertexArray[i].z += jthP.z();
 //                mesh->vertexArray[i].x = jthP.x();
 //                mesh->vertexArray[i].y = jthP.y();
 //                mesh->vertexArray[i].z = jthP.z();

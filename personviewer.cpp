@@ -74,8 +74,6 @@ void setup(char **argv)
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glEnable(GL_DEPTH_TEST);
 
-    float Ambient[4]={0.5f,0.5f,0.5f,1.0f};
-    glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient);
 }
 
 void drawScene(void)
@@ -91,7 +89,11 @@ void drawScene(void)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    float Ambient[4]={0.5f,0.5f,0.5f,1.0f};
+    glLightfv(GL_LIGHT0,GL_AMBIENT,Ambient);
+
     myCamera.applyGlTransforms(); // camera transformation
+
 
     myModel.applyGlTransforms(); // object transformation
 
