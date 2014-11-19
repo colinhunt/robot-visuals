@@ -96,8 +96,6 @@ void Articulator::poseJoints(Joint &joint,
 
     joint.applyGlTransforms();
 
-    currTransf *= joint.orientation;
-    currTransf *= Translation3d(joint.offset);
 //    currRotation = joint.orientation * currRotation;
 
     for (int i = 0; i < mesh->vertices.size(); ++i) {
@@ -109,7 +107,7 @@ void Articulator::poseJoints(Joint &joint,
                 Vector3d jthP = oldP - currOffset;   // Mj
 //                Vector3d jthP = oldP;   // Mj
                 jthP = currTransf * jthP;            // Rj
-                jthP += currOffset;                  // Mj^-1
+//                jthP += currOffset;                  // Mj^-1
 //                jthP[0] = jthP[0] * weight;
 //                jthP[1] = jthP[1] * weight;
 //                jthP[2] = jthP[2] * weight;              // w_ij
@@ -126,6 +124,9 @@ void Articulator::poseJoints(Joint &joint,
                 break;
             }
     }
+
+    currTransf *= Translation3d(joint.offset);
+    currTransf *= joint.orientation;
 
     currOffset += joint.offset;
 
